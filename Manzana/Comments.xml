@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<doc>
+	<members>
+		<member name="R:Project">
+			<summary>Manzana is the spanish word for Apple.</summary>
+		</member>
+		<member name="N:Manzana">
+			<summary>
+				The Manzana assembly provides access to an iPhone.
+			</summary>
+		</member>
+	</members>
+</doc>
