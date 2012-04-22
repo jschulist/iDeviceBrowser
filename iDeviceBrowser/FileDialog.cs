@@ -1,0 +1,245 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.IO;
+using System.Text;
+using System.Threading;
+using System.Windows.Forms;
+using Manzana;
+
+namespace iDeviceBrowser
+{
+    // TODO: CAN IFILEOPERATION (http://msdn.microsoft.com/en-us/magazine/cc163304.aspx) REPLACE THIS?
+    // TODO: SHOULD WE PROMPT FOR OVERWRITES?
+    public partial class FileDialog : Form
+    {
+        public FileDialog(iPhone iDeviceInterface)
+        {
+            InitializeComponent();
+
+            _iDeviceInterface = iDeviceInterface;
+        }
+
+        public delegate void Callback();
+
+        private readonly iPhone _iDeviceInterface;
+        private int _fileCount = 0;
+        private ulong _totalBytes = 0;
+        private ulong _bytesCounter = 0;
+        private ulong _progressBarBytesCounter = 0;
+
+        public void CopyLocalSources(IEnumerable<string> sources, string destination)
+        {
+            Copy(
+                () => GetLocalFiles(sources, destination),
+                (file) =>
+                {
+                    // create matching directory on the device
+                    if (!_iDeviceInterface.Exists(file.Destination))
+                    {
+                        _iDeviceInterface.CreateDirectory(file.Destination);
+                    }
+
+                    Utilities.CopyFileToDevice(_iDeviceInterface, file.Source, Utilities.PathCombine(file.Destination, file.Filename), (bytes) => BytesCopied(bytes));
+                }
+            );
+        }
+
+        public void CopyRemoteSources(IEnumerable<string> sources, string destination, bool destinationIsFile = false)
+        {
+            Copy(
+                () => GetRemoteFiles(sources, destination, destinationIsFile),
+                (file) =>
+                {
+                    // create matching directory on the device
+                    if (!Directory.Exists(file.Destination))
+                    {
+                        Directory.CreateDirectory(file.Destination);
+                    }
+
+                    Utilities.CopyFileFromDevice(_iDeviceInterface, file.Source, Path.Combine(file.Destination, file.Filename), (bytes) => BytesCopied(bytes));
+                }
+            );
+        }
+
+        public void Copy(Func<IEnumerable<SourceAndDestination>> getFiles, Action<SourceAndDestination> copy)
+        {
+            Async(
+                null,
+                () =>
+                {
+                    IEnumerable<SourceAndDestination> files = getFiles();
+
+                    foreach (SourceAndDestination file in files)
+                    {
+                        _fileCount += 1;
+                        _totalBytes += file.Bytes;
+                    }
+
+                    _bytesCounter = _totalBytes;
+
+                    ShiftToUiThread(
+                        () =>
+                        {
+                            SummaryLabel.Text = string.Format("Copying {0} items ({1})", _fileCount, Utilities.GetFileSize(_totalBytes));
+                            // TODO: HANDLE THE OVERFLOW CASE CAUSED BY THIS INT DIVISION
+                            BytesProgressBar.Maximum = (int)_bytesCounter / Constants.BUFFER_SIZE;
+                        });
+
+                    foreach (SourceAndDestination file in files)
+                    {
+                        SourceAndDestination closureFile = file;
+
+                        ShiftToUiThread(
+                            () =>
+                            {
+                                this.NameLabel.Text = closureFile.Filename;
+                                this.FromLabel.Text = closureFile.Source;
+                                this.ToLabel.Text = closureFile.Destination;
+                                this.TimeRemainingLabel.Text = "";
+                                this.ItemsRemainingLabel.Text = _fileCount.ToString() + " (" + Utilities.GetFileSize(_bytesCounter) + ")";
+                                this.SpeedLabel.Text = "";
+                            });
+
+                        copy(file);
+
+                        _fileCount -= 1;
+                    }
+                },
+                this.Hide
+            );
+        }
+
+        private void BytesCopied(ulong bytes)
+        {
+            _bytesCounter -= bytes;
+            _progressBarBytesCounter += bytes;
+
+            if (_progressBarBytesCounter >= Constants.BUFFER_SIZE)
+            {
+                ShiftToUiThread(
+                    () =>
+                    {
+                        BytesProgressBar.PerformStep();
+                    });
+
+                _progressBarBytesCounter -= Constants.BUFFER_SIZE;
+            }
+        }
+
+        private IEnumerable<SourceAndDestination> GetLocalFiles(IEnumerable<string> sources, string destination)
+        {
+            foreach (string source in sources)
+            {
+                if (File.Exists(source))
+                {
+                    string filename = Path.GetFileName(source);
+                    FileInfo fi = new FileInfo(source);
+                    SourceAndDestination lar = new SourceAndDestination(source, destination, filename, (ulong)fi.Length);
+
+                    yield return lar;
+                }
+                else if (Directory.Exists(source))
+                {
+                    DirectoryInfo directoryInfo = new DirectoryInfo(source);
+                    string directoryName = directoryInfo.Name;
+
+                    foreach (string file in Directory.GetFiles(source))
+                    {
+                        string filename = Path.GetFileName(file);
+                        FileInfo fi = new FileInfo(file);
+                        SourceAndDestination lar = new SourceAndDestination(file, Utilities.PathCombine(destination, directoryName), filename, (ulong)fi.Length);
+
+                        yield return lar;
+                    }
+
+                    // copy all directories over recursively
+                    IEnumerable<SourceAndDestination> files = GetLocalFiles(Directory.GetDirectories(source), Utilities.PathCombine(destination, directoryName));
+                    foreach (SourceAndDestination file in files)
+                    {
+                        yield return file;
+                    }
+                }
+            }
+        }
+
+        private IEnumerable<SourceAndDestination> GetRemoteFiles(IEnumerable<string> sources, string destination, bool destinationIsFile = false)
+        {
+            foreach (string source in sources)
+            {
+                // TODO: TEST WHEN THE ROOT DIRECTORY IS SELECTED
+                string lastPart = source.Substring(source.LastIndexOf(Constants.PATH_SEPARATOR) + 1, source.Length - source.LastIndexOf(Constants.PATH_SEPARATOR) - 1);
+
+                if (_iDeviceInterface.IsFile(source))
+                {
+                    string newDestination = destination;
+                    string filename = lastPart;
+
+                    if (destinationIsFile)
+                    {
+                        newDestination = Path.GetDirectoryName(destination);
+                        filename = Path.GetFileName(destination);
+                    }
+
+                    SourceAndDestination lar = new SourceAndDestination(source, newDestination, filename, _iDeviceInterface.FileSize(source));
+
+                    yield return lar;
+                }
+                else if (_iDeviceInterface.IsDirectory(source))
+                {
+                    foreach (string file in _iDeviceInterface.GetFiles(source))
+                    {
+                        // copy all files over recursively
+                        IEnumerable<SourceAndDestination> files = GetRemoteFiles(new string[] { Utilities.PathCombine(source, file) }, Path.Combine(destination, lastPart));
+                        foreach (SourceAndDestination f in files)
+                        {
+                            yield return f;
+                        }
+                    }
+
+                    foreach (string directory in _iDeviceInterface.GetDirectories(source))
+                    {
+                        // copy all directories over recursively
+                        IEnumerable<SourceAndDestination> filesFromDirectories = GetRemoteFiles(new string[] { Utilities.PathCombine(source, directory) }, Path.Combine(destination, lastPart));
+                        foreach (SourceAndDestination file in filesFromDirectories)
+                        {
+                            yield return file;
+                        }
+                    }
+                }
+            }
+        }
+
+        private void Async(Callback before, Callback async, Callback after)
+        {
+            if (before != null)
+            {
+                before();
+            }
+            ThreadPool.QueueUserWorkItem(
+                delegate(object o)
+                {
+                    async();
+
+                    if (after != null)
+                    {
+                        ShiftToUiThread(after);
+                    }
+                }
+            );
+        }
+
+        private void ShiftToUiThread(Callback callback)
+        {
+            if (this.InvokeRequired)
+            {
+                this.Invoke(new MethodInvoker(delegate { ShiftToUiThread(callback); }));
+                return;
+            }
+
+            callback();
+        }
+    }
+}

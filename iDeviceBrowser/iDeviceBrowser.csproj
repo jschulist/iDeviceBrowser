@@ -50,6 +50,12 @@
     <Compile Include="Constants.cs" />
     <Compile Include="Enumerable.cs" />
     <Compile Include="Favorite.cs" />
+    <Compile Include="FileDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FileDialog.Designer.cs">
+      <DependentUpon>FileDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="Folder.cs" />
     <Compile Include="InputBox.cs">
       <SubType>Form</SubType>
@@ -69,9 +75,13 @@
     <Compile Include="Settings.cs" />
     <Compile Include="ShellClipboardFormats.cs" />
     <Compile Include="ShellDataObject.cs" />
+    <Compile Include="SourceAndDestination.cs" />
     <Compile Include="UserSettings.cs" />
     <Compile Include="Utilities.cs" />
     <Compile Include="VirtualFileDataObject.cs" />
+    <EmbeddedResource Include="FileDialog.resx">
+      <DependentUpon>FileDialog.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="InputBox.resx">
       <DependentUpon>InputBox.cs</DependentUpon>
     </EmbeddedResource>

@@ -16,7 +16,6 @@ namespace iDeviceBrowser
 
         private readonly iPhone _iDeviceInterface = new iPhone();
         private bool _isConnected;
-        private readonly string[] _sizes = { "B", "KB", "MB", "GB", "PB" };
         private ShellDataObject _dataObj;
         private TreeNode _selectedNode;
         private UserSettings _userSettings = new UserSettings();
@@ -25,7 +24,6 @@ namespace iDeviceBrowser
 
         private const string ROOT_NODE_NAME = "/ [root]";
         private const string ROOT_PATH = "/";
-        private const char PATH_SEPARATOR = '/';
 
         public delegate void Callback();
 
@@ -49,6 +47,9 @@ namespace iDeviceBrowser
             _iDeviceInterface.Disconnect += new ConnectEventHandler(ConnectionChanged);
 
             PopulateFavorites();
+
+            //FileDialog fd = new FileDialog();
+            //fd.Show();
         }
 
         private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
@@ -286,7 +287,7 @@ namespace iDeviceBrowser
 
                 if (depth < 1)
                 {
-                    subFolders = GetFolders(PathCombine(path, directory), depth + 1);
+                    subFolders = GetFolders(Utilities.PathCombine(path, directory), depth + 1);
                 }
 
                 folders.Add(new Folder(directory, subFolders));
@@ -340,10 +341,11 @@ namespace iDeviceBrowser
                                continue;
                            }
 
-                           string filePath = PathCombine(path, file);
+                           string filePath = Utilities.PathCombine(path, file);
 
                            ListViewItem listViewItemTemp = new ListViewItem(file);
-                           listViewItemTemp.SubItems.Add(GetFileSize(filePath));
+                           UInt64 fileSize = _iDeviceInterface.FileSize(filePath);
+                           listViewItemTemp.SubItems.Add(Utilities.GetFileSize(fileSize));
                            //listViewItemTemp.SubItems.Add(GetFileType(lstTemp.ImageIndex));
 
                            listView1.Items.Add(listViewItemTemp);
@@ -355,22 +357,7 @@ namespace iDeviceBrowser
             );
         }
 
-        private string GetFileSize(string path)
-        {
-            UInt64 fileSize = _iDeviceInterface.FileSize(path);
 
-            int place = 0;
-            double num = 0;
-            if (fileSize > 0)
-            {
-                place = Convert.ToInt32(Math.Floor(Math.Log(fileSize, 1024)));
-                num = Math.Round(fileSize / Math.Pow(1024, place), 1);
-            }
-
-            string result = String.Format("{0:0.##} {1}", num, _sizes[place]);
-
-            return result;
-        }
 
         private string GetPathFromNodeForDisplay(TreeNode node)
         {
@@ -382,7 +369,7 @@ namespace iDeviceBrowser
             }
             else
             {
-                result = node.FullPath.Replace("\\", PATH_SEPARATOR.ToString()).Replace(ROOT_NODE_NAME, "");
+                result = node.FullPath.Replace("\\", Constants.PATH_SEPARATOR.ToString()).Replace(ROOT_NODE_NAME, "");
             }
 
             return result;
@@ -473,7 +460,7 @@ namespace iDeviceBrowser
                 if (File.Exists(source))
                 {
                     string filename = Path.GetFileName(source);
-                    CopyFileToDevice(source, PathCombine(destination, filename));
+                    CopyFileToDevice(source, Utilities.PathCombine(destination, filename));
                 }
                 else if (Directory.Exists(source))
                 {
@@ -489,13 +476,13 @@ namespace iDeviceBrowser
         private void CopyFileToDevice(string source, string destination)
         {
             UpdateStatus("Copying: " + source + "; To: " + destination);
-            Utilities.CopyFileToDevice(_iDeviceInterface, source, destination);
+            Utilities.CopyFileToDevice(_iDeviceInterface, source, destination, (bytes) => { });
         }
 
         private void CopyFileFromDevice(string source, string destination)
         {
             UpdateStatus("Copying: " + source + "; To: " + destination);
-            Utilities.CopyFileFromDevice(_iDeviceInterface, source, destination);
+            Utilities.CopyFileFromDevice(_iDeviceInterface, source, destination, (bytes) => { });
         }
 
         // TODO: IS THERE ANY REASON TO CONTINUE DOING THIS?  WHY NOT JUST REMOVE THE INVALID CHARACTERS?
@@ -527,7 +514,7 @@ namespace iDeviceBrowser
         {
             DirectoryInfo directoryInfo = new DirectoryInfo(source);
             string directoryName = directoryInfo.Name;
-            destination = PathCombine(destination, directoryName);
+            destination = Utilities.PathCombine(destination, directoryName);
 
             // create matching directory on the device
             if (!_iDeviceInterface.Exists(destination))
@@ -539,7 +526,7 @@ namespace iDeviceBrowser
             foreach (string file in Directory.GetFiles(source))
             {
                 string filename = Path.GetFileName(file);
-                CopyFileToDevice(file, PathCombine(destination, filename));
+                CopyFileToDevice(file, Utilities.PathCombine(destination, filename));
             }
 
             // copy all directories over recursively
@@ -561,13 +548,28 @@ namespace iDeviceBrowser
             {
                 string sourcePath = GetPathFromNodeForDisplay(node);
 
-                Async(DisableInterface, delegate { CopyDirectoryFromDevice(sourcePath, folderBrowserDialog.SelectedPath); }, delegate { EnableInterface(); UpdateStatus("Copy complete"); });
+                FileDialog fd = new FileDialog(_iDeviceInterface);
+                fd.Show();
+                fd.CopyRemoteSources(new string[] { sourcePath }, folderBrowserDialog.SelectedPath);
+
+                //Async(
+                //    DisableInterface,
+                //    delegate
+                //    {
+                //        FileDialog fd = new FileDialog(_iDeviceInterface);
+                //        fd.Show();
+                //        fd.CopyRemoteSources(new string[] { sourcePath }, folderBrowserDialog.SelectedPath);
+
+                //        //CopyDirectoryFromDevice(sourcePath, folderBrowserDialog.SelectedPath);
+                //    },
+                //    delegate { EnableInterface(); UpdateStatus("Copy complete"); }
+                //);
             }
         }
 
         private void CopyDirectoryFromDevice(string source, string destination)
         {
-            string sourceFolder = source.Substring(source.LastIndexOf(PATH_SEPARATOR) + 1, source.Length - source.LastIndexOf(PATH_SEPARATOR) - 1);
+            string sourceFolder = source.Substring(source.LastIndexOf(Constants.PATH_SEPARATOR) + 1, source.Length - source.LastIndexOf(Constants.PATH_SEPARATOR) - 1);
             string destinationPath = Path.Combine(destination, sourceFolder);
 
             if (!Directory.Exists(destinationPath))
@@ -579,35 +581,15 @@ namespace iDeviceBrowser
             foreach (string sourceFile in sourceFiles)
             {
                 // TODO: HANDLE EXCEPTIONS FROM FILES THAT CANNOT BE OPENED, LOG AND EXPOSE TO USER
-                CopyFileFromDevice(PathCombine(source, sourceFile), Path.Combine(destinationPath, FixFilename(sourceFile)));
+                CopyFileFromDevice(Utilities.PathCombine(source, sourceFile), Path.Combine(destinationPath, FixFilename(sourceFile)));
             }
 
             string[] sourceDirectories = _iDeviceInterface.GetDirectories(source);
             foreach (string sourceDirectory in sourceDirectories)
             {
                 // recursive call for each directory
-                CopyDirectoryFromDevice(PathCombine(source, sourceDirectory), destinationPath);
+                CopyDirectoryFromDevice(Utilities.PathCombine(source, sourceDirectory), destinationPath);
             }
-        }
-
-        private string PathCombine(string left, string right)
-        {
-            string result;
-
-            if (left.Length == 0)
-            {
-                result = PATH_SEPARATOR + right;
-            }
-            else if (left[left.Length - 1].Equals(PATH_SEPARATOR))
-            {
-                result = left + right;
-            }
-            else
-            {
-                result = left + PATH_SEPARATOR + right;
-            }
-
-            return result;
         }
 
         private void CreateDirectory(TreeNode node)
@@ -628,8 +610,8 @@ namespace iDeviceBrowser
         private void RenameDirectory(TreeNode node)
         {
             string existingPath = GetPathFromNodeForDisplay(node);
-            string existingfolderPath = existingPath.Substring(0, existingPath.LastIndexOf(PATH_SEPARATOR) + 1);
-            string existingFolder = existingPath.Substring(existingPath.LastIndexOf(PATH_SEPARATOR) + 1, existingPath.Length - existingPath.LastIndexOf(PATH_SEPARATOR) - 1);
+            string existingfolderPath = existingPath.Substring(0, existingPath.LastIndexOf(Constants.PATH_SEPARATOR) + 1);
+            string existingFolder = existingPath.Substring(existingPath.LastIndexOf(Constants.PATH_SEPARATOR) + 1, existingPath.Length - existingPath.LastIndexOf(Constants.PATH_SEPARATOR) - 1);
             string folderResult = null;
             DialogResult dialogResult = InputBox.Show(string.Format("Rename Folder: {0}", existingFolder), "Enter the new folder name:", ref folderResult);
             if (dialogResult == DialogResult.OK)
@@ -649,6 +631,7 @@ namespace iDeviceBrowser
 
         private void DeleteDirectory(TreeNode node)
         {
+            // TODO: USE the FILEDIALOG AND MAKE THIS ASYNC
             DialogResult dialogResult = MessageBox.Show(string.Format("Are you sure you want to delete folder '{0}'?", GetPathFromNodeForDisplay(node)), "Delete Folder", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
             if (dialogResult == DialogResult.Yes)
             {
@@ -667,7 +650,7 @@ namespace iDeviceBrowser
             {
                 for (int i = 0; i < items.Count; i++)
                 {
-                    _iDeviceInterface.DeleteFile(PathCombine(path, items[i].Text));
+                    _iDeviceInterface.DeleteFile(Utilities.PathCombine(path, items[i].Text));
                 }
 
                 UpdateStatus("File(s) deleted");
@@ -679,12 +662,12 @@ namespace iDeviceBrowser
         private void RenameFile(string path, ListViewItem item)
         {
             string existingFilename = item.Text;
-            string existingPath = PathCombine(path, existingFilename);
+            string existingPath = Utilities.PathCombine(path, existingFilename);
             string fileResult = null;
             DialogResult dialogResult = InputBox.Show(string.Format("Rename File: {0}", existingFilename), "Enter the new file name:", ref fileResult);
             if (dialogResult == DialogResult.OK)
             {
-                _iDeviceInterface.Rename(existingPath, PathCombine(path, fileResult));
+                _iDeviceInterface.Rename(existingPath, Utilities.PathCombine(path, fileResult));
                 // update our listview
                 RenameItem(item, fileResult);
                 UpdateStatus("File renamed");
@@ -708,9 +691,12 @@ namespace iDeviceBrowser
                 DialogResult dialogResult = saveFileDialog.ShowDialog();
                 if (dialogResult == DialogResult.OK)
                 {
-                    string source = PathCombine(path, item.Text);
+                    string source = Utilities.PathCombine(path, item.Text);
                     string destination = saveFileDialog.FileName;
-                    Async(DisableInterface, delegate { CopyFileFromDevice(source, destination); }, delegate { EnableInterface(); UpdateStatus("Copy complete"); });
+                    // Async(DisableInterface, delegate { CopyFileFromDevice(source, destination); }, delegate { EnableInterface(); UpdateStatus("Copy complete"); });
+                    FileDialog fd = new FileDialog(_iDeviceInterface);
+                    fd.Show();
+                    fd.CopyRemoteSources(new string[] { source }, destination, true);
                 }
             }
             else // multiple items selected
@@ -721,14 +707,17 @@ namespace iDeviceBrowser
                 if (dialogResult == DialogResult.OK)
                 {
                     string[] sources = new string[items.Count];
-                    string[] destinations = new string[items.Count];
+                    //string[] destinations = new string[items.Count];
                     for (int i = 0; i < items.Count; i++)
                     {
-                        sources[i] = PathCombine(path, items[i].Text);
-                        destinations[i] = Path.Combine(folderBrowserDialog.SelectedPath, items[i].Text);
+                        sources[i] = Utilities.PathCombine(path, items[i].Text);
+                        //destinations[i] = Path.Combine(folderBrowserDialog.SelectedPath, items[i].Text);
                     }
 
-                    Async(delegate { DisableInterface(); StartProgress(sources.Length); }, delegate { CopyFilesFromDevice(sources, destinations); }, delegate { EnableInterface(); UpdateStatus("Copy complete"); EndProgress(); });
+                    //Async(delegate { DisableInterface(); StartProgress(sources.Length); }, delegate { CopyFilesFromDevice(sources, destinations); }, delegate { EnableInterface(); UpdateStatus("Copy complete"); EndProgress(); });
+                    FileDialog fd = new FileDialog(_iDeviceInterface);
+                    fd.Show();
+                    fd.CopyRemoteSources(sources, folderBrowserDialog.SelectedPath);
                 }
             }
         }
@@ -751,7 +740,7 @@ namespace iDeviceBrowser
         {
             TreeNode[] nodes = treeView1.Nodes.Find(ROOT_PATH, false);
 
-            string[] pieces = path.Split(new char[] { PATH_SEPARATOR }, StringSplitOptions.RemoveEmptyEntries);
+            string[] pieces = path.Split(new char[] { Constants.PATH_SEPARATOR }, StringSplitOptions.RemoveEmptyEntries);
 
             foreach (string piece in pieces)
             {
@@ -863,7 +852,7 @@ namespace iDeviceBrowser
             VirtualFileDataObject.FileDescriptor[] files = new VirtualFileDataObject.FileDescriptor[count];
             for (int i = 0; i < count; i++)
             {
-                string source = PathCombine(path, listView1.SelectedItems[i].Text);
+                string source = Utilities.PathCombine(path, listView1.SelectedItems[i].Text);
 
                 files[i] = new VirtualFileDataObject.FileDescriptor
                 {
@@ -872,7 +861,7 @@ namespace iDeviceBrowser
                     //ChangeTimeUtc = DateTime.Now.AddDays(-1),
                     StreamContents = stream =>
                     {
-                        Utilities.Copy(iPhoneFile.OpenRead(_iDeviceInterface, source), stream);
+                        Utilities.Copy(iPhoneFile.OpenRead(_iDeviceInterface, source), stream, (bytes) => { });
                     }
                 };
             }
@@ -904,16 +893,20 @@ namespace iDeviceBrowser
 
                 if (sources != null)
                 {
-                    Async(
-                        delegate { DisableInterface(); },
-                        delegate
-                        {
-                            CopyFilesToIDevice(sources, destination);
-                            RefreshFiles();
-                            RefreshChildFolders(_selectedNode, true);
-                        },
-                        delegate { EnableInterface(); }
-                    );
+                    //Async(
+                    //    delegate { DisableInterface(); },
+                    //    delegate
+                    //    {
+                    FileDialog fd = new FileDialog(_iDeviceInterface);
+                    fd.Show();
+                    fd.CopyLocalSources(sources, destination);
+
+                    //        CopyFilesToIDevice(sources, destination);
+                    //        RefreshFiles();
+                    //        RefreshChildFolders(_selectedNode, true);
+                    //    },
+                    //    delegate { EnableInterface(); }
+                    //);
                 }
             }
         }
