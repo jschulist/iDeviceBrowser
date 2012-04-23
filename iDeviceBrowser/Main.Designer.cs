@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Main));
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.treeView1 = new System.Windows.Forms.TreeView();
@@ -50,7 +51,6 @@
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripProgressBar1 = new System.Windows.Forms.ToolStripProgressBar();
-            this.toolStripProgressBar2 = new System.Windows.Forms.ToolStripProgressBar();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.functionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -72,6 +72,8 @@
             this.toolStripSeparator9 = new System.Windows.Forms.ToolStripSeparator();
             this.renameFolder = new System.Windows.Forms.ToolStripMenuItem();
             this.deleteFolder = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveFile = new System.Windows.Forms.ToolStripMenuItem();
+            this.imageList1 = new System.Windows.Forms.ImageList(this.components);
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
@@ -121,9 +123,12 @@
             // treeView1
             // 
             this.treeView1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.treeView1.ImageIndex = 0;
+            this.treeView1.ImageList = this.imageList1;
             this.treeView1.Location = new System.Drawing.Point(3, 16);
             this.treeView1.Name = "treeView1";
             this.treeView1.PathSeparator = "/";
+            this.treeView1.SelectedImageIndex = 0;
             this.treeView1.ShowRootLines = false;
             this.treeView1.Size = new System.Drawing.Size(223, 393);
             this.treeView1.TabIndex = 0;
@@ -172,6 +177,7 @@
             this.listView1.Location = new System.Drawing.Point(3, 16);
             this.listView1.Name = "listView1";
             this.listView1.Size = new System.Drawing.Size(454, 187);
+            this.listView1.SmallImageList = this.imageList1;
             this.listView1.TabIndex = 0;
             this.listView1.UseCompatibleStateImageBehavior = false;
             this.listView1.View = System.Windows.Forms.View.Details;
@@ -179,6 +185,7 @@
             this.listView1.DragDrop += new System.Windows.Forms.DragEventHandler(this.listView1_DragDrop);
             this.listView1.DragEnter += new System.Windows.Forms.DragEventHandler(this.listView1_DragEnter);
             this.listView1.QueryContinueDrag += new System.Windows.Forms.QueryContinueDragEventHandler(this.listView1_QueryContinueDrag);
+            this.listView1.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.listView1_MouseDoubleClick);
             // 
             // columnHeader1
             // 
@@ -199,13 +206,14 @@
             this.fileContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.refreshFile,
             this.toolStripSeparator12,
+            this.saveFile,
             this.saveAsFile,
             this.toolStripSeparator13,
             this.renameFile,
             this.replaceFile,
             this.deleteFile});
             this.fileContextMenu.Name = "fileContextMenu";
-            this.fileContextMenu.Size = new System.Drawing.Size(125, 126);
+            this.fileContextMenu.Size = new System.Drawing.Size(125, 148);
             this.fileContextMenu.Opening += new System.ComponentModel.CancelEventHandler(this.fileContextMenu_Opening);
             this.fileContextMenu.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.fileContextMenu_ItemClicked);
             // 
@@ -263,8 +271,7 @@
             // 
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel1,
-            this.toolStripProgressBar1,
-            this.toolStripProgressBar2});
+            this.toolStripProgressBar1});
             this.statusStrip1.Location = new System.Drawing.Point(0, 436);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(701, 22);
@@ -274,7 +281,7 @@
             // toolStripStatusLabel1
             // 
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(451, 17);
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(584, 17);
             this.toolStripStatusLabel1.Spring = true;
             this.toolStripStatusLabel1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
@@ -284,13 +291,6 @@
             this.toolStripProgressBar1.Name = "toolStripProgressBar1";
             this.toolStripProgressBar1.Size = new System.Drawing.Size(100, 16);
             this.toolStripProgressBar1.Step = 1;
-            // 
-            // toolStripProgressBar2
-            // 
-            this.toolStripProgressBar2.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.toolStripProgressBar2.Name = "toolStripProgressBar2";
-            this.toolStripProgressBar2.Size = new System.Drawing.Size(100, 16);
-            this.toolStripProgressBar2.Step = 1;
             // 
             // menuStrip1
             // 
@@ -442,6 +442,19 @@
             this.deleteFolder.Size = new System.Drawing.Size(134, 22);
             this.deleteFolder.Text = "Delete";
             // 
+            // saveFile
+            // 
+            this.saveFile.Name = "saveFile";
+            this.saveFile.Size = new System.Drawing.Size(124, 22);
+            this.saveFile.Text = "Save...";
+            // 
+            // imageList1
+            // 
+            this.imageList1.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageList1.ImageStream")));
+            this.imageList1.TransparentColor = System.Drawing.Color.Transparent;
+            this.imageList1.Images.SetKeyName(0, "folder.ico");
+            this.imageList1.Images.SetKeyName(1, "file.ico");
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -501,7 +514,6 @@
         private System.Windows.Forms.ColumnHeader columnHeader3;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
         private System.Windows.Forms.ToolStripProgressBar toolStripProgressBar1;
-        private System.Windows.Forms.ToolStripProgressBar toolStripProgressBar2;
         private System.Windows.Forms.ContextMenuStrip folderContextMenu;
         private System.Windows.Forms.ToolStripMenuItem refreshFolder;
         private System.Windows.Forms.ToolStripMenuItem deleteFolder;
@@ -519,6 +531,8 @@
         private System.Windows.Forms.ToolStripMenuItem renameFile;
         private System.Windows.Forms.ToolStripMenuItem replaceFile;
         private System.Windows.Forms.ToolStripMenuItem deleteFile;
+        private System.Windows.Forms.ToolStripMenuItem saveFile;
+        private System.Windows.Forms.ImageList imageList1;
     }
 }
 

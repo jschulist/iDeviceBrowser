@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using Manzana;
+using System.Diagnostics;
 
 namespace iDeviceBrowser
 {
@@ -20,6 +21,9 @@ namespace iDeviceBrowser
             InitializeComponent();
 
             _iDeviceInterface = iDeviceInterface;
+            _timer = new System.Timers.Timer();
+            _timer.Interval = 1000;
+            _timer.Elapsed += new System.Timers.ElapsedEventHandler(TimerElapsed);
         }
 
         public delegate void Callback();
@@ -29,6 +33,8 @@ namespace iDeviceBrowser
         private ulong _totalBytes = 0;
         private ulong _bytesCounter = 0;
         private ulong _progressBarBytesCounter = 0;
+        private ulong _lastBytesValue = 0;
+        private System.Timers.Timer _timer;
 
         public void CopyLocalSources(IEnumerable<string> sources, string destination)
         {
@@ -42,7 +48,11 @@ namespace iDeviceBrowser
                         _iDeviceInterface.CreateDirectory(file.Destination);
                     }
 
+                    Stopwatch sp = new Stopwatch();
+                    sp.Start();
                     Utilities.CopyFileToDevice(_iDeviceInterface, file.Source, Utilities.PathCombine(file.Destination, file.Filename), (bytes) => BytesCopied(bytes));
+                    sp.Stop();
+                    long milliseconds = sp.ElapsedMilliseconds;
                 }
             );
         }
@@ -59,7 +69,11 @@ namespace iDeviceBrowser
                         Directory.CreateDirectory(file.Destination);
                     }
 
+                    Stopwatch sp = new Stopwatch();
+                    sp.Start();
                     Utilities.CopyFileFromDevice(_iDeviceInterface, file.Source, Path.Combine(file.Destination, file.Filename), (bytes) => BytesCopied(bytes));
+                    sp.Stop();
+                    long milliseconds = sp.ElapsedMilliseconds;
                 }
             );
         }
@@ -79,6 +93,7 @@ namespace iDeviceBrowser
                     }
 
                     _bytesCounter = _totalBytes;
+                    _lastBytesValue = _totalBytes;
 
                     ShiftToUiThread(
                         () =>
@@ -88,6 +103,7 @@ namespace iDeviceBrowser
                             BytesProgressBar.Maximum = (int)_bytesCounter / Constants.BUFFER_SIZE;
                         });
 
+                    _timer.Start();
                     foreach (SourceAndDestination file in files)
                     {
                         SourceAndDestination closureFile = file;
@@ -107,6 +123,7 @@ namespace iDeviceBrowser
 
                         _fileCount -= 1;
                     }
+                    _timer.Stop();
                 },
                 this.Hide
             );
@@ -233,13 +250,39 @@ namespace iDeviceBrowser
 
         private void ShiftToUiThread(Callback callback)
         {
-            if (this.InvokeRequired)
+            try
             {
-                this.Invoke(new MethodInvoker(delegate { ShiftToUiThread(callback); }));
-                return;
-            }
+                if (this.InvokeRequired)
+                {
+                    this.Invoke(new MethodInvoker(delegate { ShiftToUiThread(callback); }));
+                    return;
+                }
 
-            callback();
+                callback();
+            }
+            catch (ObjectDisposedException)
+            {
+                // swallow
+            }
+        }
+
+        private void TimerElapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            ulong difference = _lastBytesValue - _bytesCounter;
+
+            ShiftToUiThread(
+                () =>
+                {
+                    if (_bytesCounter > 0 && difference > 0)
+                    {
+                        ulong secondsRemaining = _bytesCounter / difference;
+                        TimeSpan ts = new TimeSpan(0, 0, (int)secondsRemaining);
+                        TimeRemainingLabel.Text = "About " + ts.ToString();
+                    }
+                    SpeedLabel.Text = Utilities.GetFileSize(difference) + "/second";
+                });
+
+            _lastBytesValue = _bytesCounter;
         }
     }
 }

@@ -19,8 +19,6 @@ namespace iDeviceBrowser
         private ShellDataObject _dataObj;
         private TreeNode _selectedNode;
         private UserSettings _userSettings = new UserSettings();
-        private ToolStripProgressBar[] _progressBars;
-        private int _progressBarDepth = -1;
 
         private const string ROOT_NODE_NAME = "/ [root]";
         private const string ROOT_PATH = "/";
@@ -37,8 +35,6 @@ namespace iDeviceBrowser
             AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
             Application.ThreadException += new ThreadExceptionEventHandler(Application_ThreadException);
 
-            _progressBars = new ToolStripProgressBar[] { toolStripProgressBar1, toolStripProgressBar2 };
-
             _userSettings.Setup();
 
             UpdateTitle();
@@ -47,9 +43,6 @@ namespace iDeviceBrowser
             _iDeviceInterface.Disconnect += new ConnectEventHandler(ConnectionChanged);
 
             PopulateFavorites();
-
-            //FileDialog fd = new FileDialog();
-            //fd.Show();
         }
 
         private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
@@ -71,42 +64,6 @@ namespace iDeviceBrowser
                 tsmi.Click += new EventHandler(Favorite_Click);
                 favoritesToolStripMenuItem.DropDownItems.Add(tsmi);
             }
-        }
-
-        private void StartProgress(int max)
-        {
-            ShiftToUiThread(
-                delegate
-                {
-                    _progressBarDepth++;
-                    _progressBars[_progressBarDepth].Maximum = max;
-                }
-            );
-        }
-
-        private void EndProgress()
-        {
-            ShiftToUiThread(
-                delegate
-                {
-                    _progressBars[_progressBarDepth].Value = 0;
-                    _progressBarDepth--;
-                }
-            );
-        }
-
-        private void IncrementProgress()
-        {
-            ShiftToUiThread(
-                delegate
-                {
-                    ToolStripProgressBar current = _progressBars[_progressBarDepth];
-                    if (current.Value < current.Maximum)
-                    {
-                        current.PerformStep();
-                    }
-                }
-            );
         }
 
         private void Favorite_Click(object sender, EventArgs e)
@@ -310,9 +267,11 @@ namespace iDeviceBrowser
         {
             string path = GetPathFromNode(_selectedNode);
 
+            string[] folders = null;
             string[] files = null;
             try
             {
+                folders = _iDeviceInterface.GetDirectories(path);
                 files = _iDeviceInterface.GetFiles(path);
             }
             catch (Exception ex) // most likely someone removed the folder
@@ -320,10 +279,10 @@ namespace iDeviceBrowser
                 RemoveNodeFromNode(_selectedNode.Parent, _selectedNode);
             }
 
-            UpdateFiles(path, files);
+            UpdateFiles(path, folders, files);
         }
 
-        private void UpdateFiles(string path, string[] files)
+        private void UpdateFiles(string path, IEnumerable<string> folders, IEnumerable<string> files)
         {
             ShiftToUiThread(
                delegate
@@ -334,16 +293,21 @@ namespace iDeviceBrowser
 
                        listView1.Items.Clear();
 
+                       foreach (string folder in folders)
+                       {
+                           ListViewItem listViewItemTemp = new ListViewItem(folder);
+                           listViewItemTemp.ImageIndex = 0;
+
+                           listView1.Items.Add(listViewItemTemp);
+                       }
+
                        foreach (string file in files)
                        {
-                           if (file.Equals(".") || file.Equals(".."))
-                           {
-                               continue;
-                           }
-
                            string filePath = Utilities.PathCombine(path, file);
 
                            ListViewItem listViewItemTemp = new ListViewItem(file);
+                           listViewItemTemp.ImageIndex = 1;
+
                            UInt64 fileSize = _iDeviceInterface.FileSize(filePath);
                            listViewItemTemp.SubItems.Add(Utilities.GetFileSize(fileSize));
                            //listViewItemTemp.SubItems.Add(GetFileType(lstTemp.ImageIndex));
@@ -356,8 +320,6 @@ namespace iDeviceBrowser
                }
             );
         }
-
-
 
         private string GetPathFromNodeForDisplay(TreeNode node)
         {
@@ -420,17 +382,6 @@ namespace iDeviceBrowser
             callback();
         }
 
-        private void ShiftToUiThreadAsync(Callback callback)
-        {
-            if (this.InvokeRequired)
-            {
-                this.BeginInvoke(new MethodInvoker(delegate { ShiftToUiThreadAsync(callback); }));
-                return;
-            }
-
-            callback();
-        }
-
         private void DisableInterface()
         {
             ShiftToUiThread(
@@ -451,38 +402,6 @@ namespace iDeviceBrowser
                     listView1.Enabled = true;
                 }
             );
-        }
-
-        private void CopyFilesToIDevice(IEnumerable<string> sources, string destination)
-        {
-            foreach (string source in sources)
-            {
-                if (File.Exists(source))
-                {
-                    string filename = Path.GetFileName(source);
-                    CopyFileToDevice(source, Utilities.PathCombine(destination, filename));
-                }
-                else if (Directory.Exists(source))
-                {
-                    CopyDirectoryToDevice(source, destination);
-                }
-                else
-                {
-                    // do nothing
-                }
-            }
-        }
-
-        private void CopyFileToDevice(string source, string destination)
-        {
-            UpdateStatus("Copying: " + source + "; To: " + destination);
-            Utilities.CopyFileToDevice(_iDeviceInterface, source, destination, (bytes) => { });
-        }
-
-        private void CopyFileFromDevice(string source, string destination)
-        {
-            UpdateStatus("Copying: " + source + "; To: " + destination);
-            Utilities.CopyFileFromDevice(_iDeviceInterface, source, destination, (bytes) => { });
         }
 
         // TODO: IS THERE ANY REASON TO CONTINUE DOING THIS?  WHY NOT JUST REMOVE THE INVALID CHARACTERS?
@@ -510,35 +429,6 @@ namespace iDeviceBrowser
             return result;
         }
 
-        private void CopyDirectoryToDevice(string source, string destination)
-        {
-            DirectoryInfo directoryInfo = new DirectoryInfo(source);
-            string directoryName = directoryInfo.Name;
-            destination = Utilities.PathCombine(destination, directoryName);
-
-            // create matching directory on the device
-            if (!_iDeviceInterface.Exists(destination))
-            {
-                _iDeviceInterface.CreateDirectory(destination);
-            }
-
-            // copy all files over recursively
-            foreach (string file in Directory.GetFiles(source))
-            {
-                string filename = Path.GetFileName(file);
-                CopyFileToDevice(file, Utilities.PathCombine(destination, filename));
-            }
-
-            // copy all directories over recursively
-            foreach (string directory in Directory.GetDirectories(source))
-            {
-                CopyDirectoryToDevice(directory, destination);
-            }
-
-            // update our tree
-            //AddFoldersToSelectedNode(new List<Folder>() { new Folder(directoryName, null) });
-        }
-
         private void SaveDirectory(TreeNode node)
         {
             FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog();
@@ -551,44 +441,6 @@ namespace iDeviceBrowser
                 FileDialog fd = new FileDialog(_iDeviceInterface);
                 fd.Show();
                 fd.CopyRemoteSources(new string[] { sourcePath }, folderBrowserDialog.SelectedPath);
-
-                //Async(
-                //    DisableInterface,
-                //    delegate
-                //    {
-                //        FileDialog fd = new FileDialog(_iDeviceInterface);
-                //        fd.Show();
-                //        fd.CopyRemoteSources(new string[] { sourcePath }, folderBrowserDialog.SelectedPath);
-
-                //        //CopyDirectoryFromDevice(sourcePath, folderBrowserDialog.SelectedPath);
-                //    },
-                //    delegate { EnableInterface(); UpdateStatus("Copy complete"); }
-                //);
-            }
-        }
-
-        private void CopyDirectoryFromDevice(string source, string destination)
-        {
-            string sourceFolder = source.Substring(source.LastIndexOf(Constants.PATH_SEPARATOR) + 1, source.Length - source.LastIndexOf(Constants.PATH_SEPARATOR) - 1);
-            string destinationPath = Path.Combine(destination, sourceFolder);
-
-            if (!Directory.Exists(destinationPath))
-            {
-                Directory.CreateDirectory(destinationPath);
-            }
-
-            string[] sourceFiles = _iDeviceInterface.GetFiles(source);
-            foreach (string sourceFile in sourceFiles)
-            {
-                // TODO: HANDLE EXCEPTIONS FROM FILES THAT CANNOT BE OPENED, LOG AND EXPOSE TO USER
-                CopyFileFromDevice(Utilities.PathCombine(source, sourceFile), Path.Combine(destinationPath, FixFilename(sourceFile)));
-            }
-
-            string[] sourceDirectories = _iDeviceInterface.GetDirectories(source);
-            foreach (string sourceDirectory in sourceDirectories)
-            {
-                // recursive call for each directory
-                CopyDirectoryFromDevice(Utilities.PathCombine(source, sourceDirectory), destinationPath);
             }
         }
 
@@ -681,7 +533,7 @@ namespace iDeviceBrowser
 
         private void SaveFiles(string path, ListView.SelectedListViewItemCollection items)
         {
-            if (items.Count == 1)
+            if (items.Count == 1 && _iDeviceInterface.IsFile(Utilities.PathCombine(path, listView1.SelectedItems[0].Text)))
             {
                 ListViewItem item = items[0];
 
@@ -693,7 +545,7 @@ namespace iDeviceBrowser
                 {
                     string source = Utilities.PathCombine(path, item.Text);
                     string destination = saveFileDialog.FileName;
-                    // Async(DisableInterface, delegate { CopyFileFromDevice(source, destination); }, delegate { EnableInterface(); UpdateStatus("Copy complete"); });
+
                     FileDialog fd = new FileDialog(_iDeviceInterface);
                     fd.Show();
                     fd.CopyRemoteSources(new string[] { source }, destination, true);
@@ -707,32 +559,16 @@ namespace iDeviceBrowser
                 if (dialogResult == DialogResult.OK)
                 {
                     string[] sources = new string[items.Count];
-                    //string[] destinations = new string[items.Count];
+
                     for (int i = 0; i < items.Count; i++)
                     {
                         sources[i] = Utilities.PathCombine(path, items[i].Text);
-                        //destinations[i] = Path.Combine(folderBrowserDialog.SelectedPath, items[i].Text);
                     }
 
-                    //Async(delegate { DisableInterface(); StartProgress(sources.Length); }, delegate { CopyFilesFromDevice(sources, destinations); }, delegate { EnableInterface(); UpdateStatus("Copy complete"); EndProgress(); });
                     FileDialog fd = new FileDialog(_iDeviceInterface);
                     fd.Show();
                     fd.CopyRemoteSources(sources, folderBrowserDialog.SelectedPath);
                 }
-            }
-        }
-
-        private void CopyFilesFromDevice(string[] sources, string[] destinations)
-        {
-            if (sources.Length != destinations.Length)
-            {
-                throw new ArgumentException("The number of sources and destinations must be equal.");
-            }
-
-            for (int i = 0; i < sources.Length; i++)
-            {
-                CopyFileFromDevice(sources[i], destinations[i]);
-                IncrementProgress();
             }
         }
 
@@ -893,20 +729,9 @@ namespace iDeviceBrowser
 
                 if (sources != null)
                 {
-                    //Async(
-                    //    delegate { DisableInterface(); },
-                    //    delegate
-                    //    {
                     FileDialog fd = new FileDialog(_iDeviceInterface);
                     fd.Show();
                     fd.CopyLocalSources(sources, destination);
-
-                    //        CopyFilesToIDevice(sources, destination);
-                    //        RefreshFiles();
-                    //        RefreshChildFolders(_selectedNode, true);
-                    //    },
-                    //    delegate { EnableInterface(); }
-                    //);
                 }
             }
         }
@@ -973,6 +798,10 @@ namespace iDeviceBrowser
             {
                 RefreshFilesAsync(delegate { UpdateStatus("Refresh complete"); });
             }
+            else if (e.ClickedItem == saveFile)
+            {
+                SaveFiles(path, listView1.SelectedItems);
+            }
             else if (e.ClickedItem == saveAsFile)
             {
                 SaveFiles(path, listView1.SelectedItems);
@@ -1002,10 +831,19 @@ namespace iDeviceBrowser
         {
             int count = listView1.SelectedItems.Count;
 
-            saveAsFile.Enabled = count > 0;
+            saveFile.Enabled = count > 0;
+            saveAsFile.Enabled = count == 1 && _iDeviceInterface.IsFile(Utilities.PathCombine(GetPathFromNodeForDisplay(_selectedNode), listView1.SelectedItems[0].Text));
             renameFile.Enabled = count == 1;
             replaceFile.Enabled = count == 1;
             deleteFile.Enabled = count > 0;
+        }
+
+        private void listView1_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            if (listView1.SelectedItems.Count == 1 && _iDeviceInterface.IsDirectory(Utilities.PathCombine(GetPathFromNodeForDisplay(_selectedNode), listView1.SelectedItems[0].Text)))
+            {
+                SelectNode(Utilities.PathCombine(GetPathFromNodeForDisplay(_selectedNode), listView1.SelectedItems[0].Text));
+            }
         }
     }
 }

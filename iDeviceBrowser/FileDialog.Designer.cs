@@ -197,7 +197,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.Name = "FileDialog";
-            this.Text = "FileDialog";
+            this.Text = "Copy";
             this.ResumeLayout(false);
             this.PerformLayout();
 

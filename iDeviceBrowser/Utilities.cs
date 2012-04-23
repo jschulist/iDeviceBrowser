@@ -13,7 +13,7 @@ namespace iDeviceBrowser
 
         private static readonly string[] _sizes = { "B", "KB", "MB", "GB", "PB" };
 
-
+        // TODO: MAKE THIS CANCELLABLE
         public static void Copy(Stream from, Stream to, Action<ulong> bytesTransfered)
         {
             byte[] buffer = new byte[Constants.BUFFER_SIZE];
