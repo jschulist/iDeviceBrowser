@@ -48,7 +48,7 @@ namespace iDeviceBrowser
             //{
             //    StatusUpdate("Copying: " + source + "; To: " + destination);
             //}
-            Utilities.CopyFileFromDevice(_iDeviceInterface, source, destination, (bytes) => { });
+            Utilities.CopyFileFromDevice(_iDeviceInterface, source, destination, (bytes) => { }, () => false);
         }
 
         private bool InDragLoop()

@@ -13,13 +13,12 @@ namespace iDeviceBrowser
 
         private static readonly string[] _sizes = { "B", "KB", "MB", "GB", "PB" };
 
-        // TODO: MAKE THIS CANCELLABLE
-        public static void Copy(Stream from, Stream to, Action<ulong> bytesTransfered)
+        public static void Copy(Stream from, Stream to, Action<ulong> bytesTransfered, Func<bool> cancelled)
         {
             byte[] buffer = new byte[Constants.BUFFER_SIZE];
 
             int bytes = from.Read(buffer, 0, Constants.BUFFER_SIZE);
-            while (bytes > 0)
+            while (bytes > 0 && !cancelled())
             {
                 to.Write(buffer, 0, bytes);
                 bytesTransfered((ulong)bytes);
@@ -27,7 +26,7 @@ namespace iDeviceBrowser
             }
         }
 
-        public static void CopyFileToDevice(iPhone iDeviceInterface, string source, string destination, Action<ulong> bytesTransfered)
+        public static void CopyFileToDevice(iPhone iDeviceInterface, string source, string destination, Action<ulong> bytesTransfered, Func<bool> cancelled)
         {
             if (source.Equals("Thumbs.db") || source.Equals(".DS_Store"))
             {
@@ -37,7 +36,7 @@ namespace iDeviceBrowser
             // if it already exists
             if (iDeviceInterface.Exists(destination))
             {
-                // TODO: DO SOMETHING WHEN THE FIRST ALREADY EXISTS
+                // TODO: DO SOMETHING WHEN THE FILE ALREADY EXISTS
             }
 
             if (File.Exists(source))
@@ -45,13 +44,13 @@ namespace iDeviceBrowser
                 using (FileStream from = File.OpenRead(source))
                 using (iPhoneFile to = iPhoneFile.OpenWrite(iDeviceInterface, destination))
                 {
-                    Utilities.Copy(from, to, bytesTransfered);
+                    Utilities.Copy(from, to, bytesTransfered, cancelled);
                 }
             }
         }
 
         // TODO: MOVE THIS INTO IPHONE CLASS
-        public static void CopyFileFromDevice(iPhone iDeviceInterface, string source, string destination, Action<ulong> bytesTransfered)
+        public static void CopyFileFromDevice(iPhone iDeviceInterface, string source, string destination, Action<ulong> bytesTransfered, Func<bool> cancelled)
         {
             // remove our local file if it exists
             if (File.Exists(destination))
@@ -65,7 +64,7 @@ namespace iDeviceBrowser
                 using (iPhoneFile from = iPhoneFile.OpenRead(iDeviceInterface, source))
                 using (FileStream to = File.OpenWrite(destination))
                 {
-                    Utilities.Copy(from, to, bytesTransfered);
+                    Utilities.Copy(from, to, bytesTransfered, cancelled);
                 }
             }
         }

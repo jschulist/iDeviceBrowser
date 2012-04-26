@@ -14,6 +14,8 @@ namespace iDeviceBrowser
 
         // TODO: ADD SUPPORT FOR DRAGGING FOLDERS FROM THE TREEVIEW TO THE DESKTOP
 
+        // TODO: CONSIDER ADDING PREVIEW BACK IN
+
         private readonly iPhone _iDeviceInterface = new iPhone();
         private bool _isConnected;
         private ShellDataObject _dataObj;
@@ -131,7 +133,7 @@ namespace iDeviceBrowser
             rootNode.Name = ROOT_PATH;
 
             ShiftToUiThread(
-                delegate
+                () =>
                 {
                     treeView1.BeginUpdate();
 
@@ -144,9 +146,9 @@ namespace iDeviceBrowser
 
                     treeView1.EndUpdate();
                 }
-            );
+                );
 
-            RefreshChildFoldersAsync(rootNode, true, delegate { rootNode.Expand(); });
+            RefreshChildFoldersAsync(rootNode, true, rootNode.Expand);
         }
 
         private void RefreshChildFolders(TreeNode node, bool forceRefresh)
@@ -191,7 +193,7 @@ namespace iDeviceBrowser
             );
         }
 
-        private void UpdateChildFolders(List<NodeAndFolders> nodeAndFolders)
+        private void UpdateChildFolders(IEnumerable<NodeAndFolders> nodeAndFolders)
         {
             ShiftToUiThread(
                 delegate
@@ -253,14 +255,19 @@ namespace iDeviceBrowser
             return folders;
         }
 
-        private void RefreshFilesAsync(Callback callback)
+        private void RefreshFilesAsync(Callback callback = null)
         {
-            Async(DisableInterface, RefreshFiles, delegate { EnableInterface(); if (callback != null) callback(); });
-        }
-
-        private void RefreshFilesAsync()
-        {
-            RefreshFilesAsync(null);
+            Async(
+                DisableInterface,
+                RefreshFiles,
+                () =>
+                {
+                    EnableInterface();
+                    if (callback != null)
+                    {
+                        callback();
+                    }
+                });
         }
 
         private void RefreshFiles()
@@ -344,7 +351,17 @@ namespace iDeviceBrowser
 
         private void RefreshChildFoldersAsync(TreeNode node, bool forceRefresh, Callback callback)
         {
-            Async(delegate { DisableInterface(); }, delegate { RefreshChildFolders(node, forceRefresh); }, delegate { EnableInterface(); if (callback != null) callback(); });
+            Async(
+                DisableInterface,
+                () => RefreshChildFolders(node, forceRefresh),
+                () =>
+                {
+                    EnableInterface();
+                    if (callback != null)
+                    {
+                        callback();
+                    }
+                });
         }
 
         private void RefreshChildFoldersAsync(TreeNode node, bool forceRefresh)
@@ -375,7 +392,7 @@ namespace iDeviceBrowser
         {
             if (this.InvokeRequired)
             {
-                this.Invoke(new MethodInvoker(delegate { ShiftToUiThread(callback); }));
+                this.Invoke(new MethodInvoker(() => ShiftToUiThread(callback)));
                 return;
             }
 
@@ -487,10 +504,16 @@ namespace iDeviceBrowser
             DialogResult dialogResult = MessageBox.Show(string.Format("Are you sure you want to delete folder '{0}'?", GetPathFromNodeForDisplay(node)), "Delete Folder", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
             if (dialogResult == DialogResult.Yes)
             {
-                _iDeviceInterface.DeleteDirectory(GetPathFromNode(node), true);
-                // no need to refresh as we know the folder is being removed, so just remove the node from the tree
-                RemoveNodeFromNode(node.Parent, node);
-                UpdateStatus("Directory deleted");
+                Async(
+                    null,
+                    () => Delete(new string[] { GetPathFromNode(node) }),
+                    () =>
+                    {
+                        // no need to refresh as we know the folder is being removed, so just remove the node from the tree
+                        RemoveNodeFromNode(node.Parent, node);
+                        UpdateStatus("Directory deleted");
+                    }
+                );
             }
         }
 
@@ -500,14 +523,36 @@ namespace iDeviceBrowser
             DialogResult dialogResult = MessageBox.Show(message, "Delete File(s)", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
             if (dialogResult == DialogResult.Yes)
             {
+                List<string> foldersOrFiles = new List<string>();
                 for (int i = 0; i < items.Count; i++)
                 {
-                    _iDeviceInterface.DeleteFile(Utilities.PathCombine(path, items[i].Text));
+                    foldersOrFiles.Add(Utilities.PathCombine(path, items[i].Text));
                 }
 
-                UpdateStatus("File(s) deleted");
+                Async(
+                    null,
+                    () => Delete(foldersOrFiles),
+                    () =>
+                    {
+                        UpdateStatus("File(s) deleted");
+                        RefreshFilesAsync();
+                    }
+                );
+            }
+        }
 
-                RefreshFilesAsync();
+        private void Delete(IEnumerable<string> foldersOrFiles)
+        {
+            foreach (string folderOrFile in foldersOrFiles)
+            {
+                if (_iDeviceInterface.IsDirectory(folderOrFile))
+                {
+                    _iDeviceInterface.DeleteDirectory(folderOrFile, true);
+                }
+                else
+                {
+                    _iDeviceInterface.DeleteFile(folderOrFile);
+                }
             }
         }
 
@@ -697,14 +742,22 @@ namespace iDeviceBrowser
                     //ChangeTimeUtc = DateTime.Now.AddDays(-1),
                     StreamContents = stream =>
                     {
-                        Utilities.Copy(iPhoneFile.OpenRead(_iDeviceInterface, source), stream, (bytes) => { });
+                        Utilities.Copy(iPhoneFile.OpenRead(_iDeviceInterface, source), stream, (bytes) => { }, () => false);
                     }
                 };
             }
 
             VirtualFileDataObject virtualFileDataObject = new VirtualFileDataObject(
-                delegate(VirtualFileDataObject vdo) { DisableInterface(); UpdateStatus("Copying files to local machine..."); },
-                delegate(VirtualFileDataObject vdo) { EnableInterface(); UpdateStatus("Done"); }
+                vdo =>
+                {
+                    DisableInterface();
+                    UpdateStatus("Copying files to local machine...");
+                },
+                vdo =>
+                {
+                    EnableInterface();
+                    UpdateStatus("Done");
+                }
             );
             virtualFileDataObject.SetData(files);
 
@@ -796,7 +849,7 @@ namespace iDeviceBrowser
 
             if (e.ClickedItem == refreshFile)
             {
-                RefreshFilesAsync(delegate { UpdateStatus("Refresh complete"); });
+                RefreshFilesAsync(() => UpdateStatus("Refresh complete"));
             }
             else if (e.ClickedItem == saveFile)
             {

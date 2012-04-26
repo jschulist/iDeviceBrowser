@@ -53,6 +53,7 @@
             this.CancelButton.TabIndex = 0;
             this.CancelButton.Text = "Cancel";
             this.CancelButton.UseVisualStyleBackColor = true;
+            this.CancelButton.Click += new System.EventHandler(this.CancelButton_Click);
             // 
             // BytesProgressBar
             // 
@@ -198,6 +199,7 @@
             this.MaximizeBox = false;
             this.Name = "FileDialog";
             this.Text = "Copy";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FileDialog_FormClosing);
             this.ResumeLayout(false);
             this.PerformLayout();
 

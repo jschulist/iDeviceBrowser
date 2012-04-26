@@ -35,6 +35,7 @@ namespace iDeviceBrowser
         private ulong _progressBarBytesCounter = 0;
         private ulong _lastBytesValue = 0;
         private System.Timers.Timer _timer;
+        private bool _isCancelled = false;
 
         public void CopyLocalSources(IEnumerable<string> sources, string destination)
         {
@@ -50,7 +51,7 @@ namespace iDeviceBrowser
 
                     Stopwatch sp = new Stopwatch();
                     sp.Start();
-                    Utilities.CopyFileToDevice(_iDeviceInterface, file.Source, Utilities.PathCombine(file.Destination, file.Filename), (bytes) => BytesCopied(bytes));
+                    Utilities.CopyFileToDevice(_iDeviceInterface, file.Source, Utilities.PathCombine(file.Destination, file.Filename), (bytes) => BytesCopied(bytes), () => _isCancelled);
                     sp.Stop();
                     long milliseconds = sp.ElapsedMilliseconds;
                 }
@@ -71,7 +72,7 @@ namespace iDeviceBrowser
 
                     Stopwatch sp = new Stopwatch();
                     sp.Start();
-                    Utilities.CopyFileFromDevice(_iDeviceInterface, file.Source, Path.Combine(file.Destination, file.Filename), (bytes) => BytesCopied(bytes));
+                    Utilities.CopyFileFromDevice(_iDeviceInterface, file.Source, Path.Combine(file.Destination, file.Filename), (bytes) => BytesCopied(bytes), () => _isCancelled);
                     sp.Stop();
                     long milliseconds = sp.ElapsedMilliseconds;
                 }
@@ -100,28 +101,29 @@ namespace iDeviceBrowser
                         {
                             SummaryLabel.Text = string.Format("Copying {0} items ({1})", _fileCount, Utilities.GetFileSize(_totalBytes));
                             // TODO: HANDLE THE OVERFLOW CASE CAUSED BY THIS INT DIVISION
-                            BytesProgressBar.Maximum = (int)_bytesCounter / Constants.BUFFER_SIZE;
+                            BytesProgressBar.Maximum = (int)(_bytesCounter / Constants.BUFFER_SIZE);
                         });
 
                     _timer.Start();
                     foreach (SourceAndDestination file in files)
                     {
-                        SourceAndDestination closureFile = file;
+                        if (!_isCancelled)
+                        {
+                            SourceAndDestination closureFile = file;
 
-                        ShiftToUiThread(
-                            () =>
-                            {
-                                this.NameLabel.Text = closureFile.Filename;
-                                this.FromLabel.Text = closureFile.Source;
-                                this.ToLabel.Text = closureFile.Destination;
-                                this.TimeRemainingLabel.Text = "";
-                                this.ItemsRemainingLabel.Text = _fileCount.ToString() + " (" + Utilities.GetFileSize(_bytesCounter) + ")";
-                                this.SpeedLabel.Text = "";
-                            });
+                            ShiftToUiThread(
+                                () =>
+                                {
+                                    this.NameLabel.Text = closureFile.Filename;
+                                    this.FromLabel.Text = closureFile.Source;
+                                    this.ToLabel.Text = closureFile.Destination;
+                                    this.ItemsRemainingLabel.Text = _fileCount.ToString() + " (" + Utilities.GetFileSize(_bytesCounter) + ")";
+                                });
 
-                        copy(file);
+                            copy(file);
 
-                        _fileCount -= 1;
+                            _fileCount -= 1;
+                        }
                     }
                     _timer.Stop();
                 },
@@ -277,12 +279,29 @@ namespace iDeviceBrowser
                     {
                         ulong secondsRemaining = _bytesCounter / difference;
                         TimeSpan ts = new TimeSpan(0, 0, (int)secondsRemaining);
-                        TimeRemainingLabel.Text = "About " + ts.ToString();
+                        this.TimeRemainingLabel.Text = "About " + ts.ToString();
                     }
-                    SpeedLabel.Text = Utilities.GetFileSize(difference) + "/second";
+                    this.SpeedLabel.Text = Utilities.GetFileSize(difference) + "/second";
                 });
 
             _lastBytesValue = _bytesCounter;
+        }
+
+        private void CancelButton_Click(object sender, EventArgs e)
+        {
+            Cancel();
+        }
+
+        private void FileDialog_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Cancel();
+        }
+
+        private void Cancel()
+        {
+            _isCancelled = true;
+            _timer.Stop();
+            Hide();
         }
     }
 }

@@ -33,6 +33,7 @@
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.treeView1 = new System.Windows.Forms.TreeView();
+            this.imageList1 = new System.Windows.Forms.ImageList(this.components);
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.listView1 = new System.Windows.Forms.ListView();
@@ -42,6 +43,7 @@
             this.fileContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.refreshFile = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator12 = new System.Windows.Forms.ToolStripSeparator();
+            this.saveFile = new System.Windows.Forms.ToolStripMenuItem();
             this.saveAsFile = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator13 = new System.Windows.Forms.ToolStripSeparator();
             this.renameFile = new System.Windows.Forms.ToolStripMenuItem();
@@ -72,8 +74,6 @@
             this.toolStripSeparator9 = new System.Windows.Forms.ToolStripSeparator();
             this.renameFolder = new System.Windows.Forms.ToolStripMenuItem();
             this.deleteFolder = new System.Windows.Forms.ToolStripMenuItem();
-            this.saveFile = new System.Windows.Forms.ToolStripMenuItem();
-            this.imageList1 = new System.Windows.Forms.ImageList(this.components);
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
@@ -134,6 +134,13 @@
             this.treeView1.TabIndex = 0;
             this.treeView1.AfterExpand += new System.Windows.Forms.TreeViewEventHandler(this.treeView1_AfterExpand);
             this.treeView1.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeView1_AfterSelect);
+            // 
+            // imageList1
+            // 
+            this.imageList1.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageList1.ImageStream")));
+            this.imageList1.TransparentColor = System.Drawing.Color.Transparent;
+            this.imageList1.Images.SetKeyName(0, "folder.ico");
+            this.imageList1.Images.SetKeyName(1, "file.ico");
             // 
             // splitContainer2
             // 
@@ -227,6 +234,12 @@
             // 
             this.toolStripSeparator12.Name = "toolStripSeparator12";
             this.toolStripSeparator12.Size = new System.Drawing.Size(121, 6);
+            // 
+            // saveFile
+            // 
+            this.saveFile.Name = "saveFile";
+            this.saveFile.Size = new System.Drawing.Size(124, 22);
+            this.saveFile.Text = "Save...";
             // 
             // saveAsFile
             // 
@@ -441,19 +454,6 @@
             this.deleteFolder.Name = "deleteFolder";
             this.deleteFolder.Size = new System.Drawing.Size(134, 22);
             this.deleteFolder.Text = "Delete";
-            // 
-            // saveFile
-            // 
-            this.saveFile.Name = "saveFile";
-            this.saveFile.Size = new System.Drawing.Size(124, 22);
-            this.saveFile.Text = "Save...";
-            // 
-            // imageList1
-            // 
-            this.imageList1.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageList1.ImageStream")));
-            this.imageList1.TransparentColor = System.Drawing.Color.Transparent;
-            this.imageList1.Images.SetKeyName(0, "folder.ico");
-            this.imageList1.Images.SetKeyName(1, "file.ico");
             // 
             // Main
             // 
