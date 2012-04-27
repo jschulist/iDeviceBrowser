@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
+using System.Net;
 using System.Windows.Forms;
 using Manzana;
 using System.Threading;
@@ -658,7 +660,8 @@ namespace iDeviceBrowser
 
         private void UpdateSelectedPath()
         {
-            groupBox2.Text = "Files in: " + GetPathFromNodeForDisplay(_selectedNode);
+            // TODO: CHANGE A TEXTBOX
+            //groupBox2.Text = "Files in: " + GetPathFromNodeForDisplay(_selectedNode);
         }
 
         private void treeView1_AfterExpand(object sender, TreeViewEventArgs e)
@@ -738,11 +741,13 @@ namespace iDeviceBrowser
                 files[i] = new VirtualFileDataObject.FileDescriptor
                 {
                     Name = listView1.SelectedItems[i].Text,
-                    //Length = 26,
-                    //ChangeTimeUtc = DateTime.Now.AddDays(-1),
-                    StreamContents = stream =>
+                    Length = (long)_iDeviceInterface.FileSize(source),
+                    StreamContents = destinationStream =>
                     {
-                        Utilities.Copy(iPhoneFile.OpenRead(_iDeviceInterface, source), stream, (bytes) => { }, () => false);
+                        using (Stream sourceStream = iPhoneFile.OpenRead(_iDeviceInterface, source))
+                        {
+                            Utilities.Copy(sourceStream, destinationStream);
+                        }
                     }
                 };
             }
@@ -750,18 +755,18 @@ namespace iDeviceBrowser
             VirtualFileDataObject virtualFileDataObject = new VirtualFileDataObject(
                 vdo =>
                 {
-                    DisableInterface();
-                    UpdateStatus("Copying files to local machine...");
+                    //DisableInterface();
+                    //UpdateStatus("Copying files to local machine...");
                 },
                 vdo =>
                 {
-                    EnableInterface();
-                    UpdateStatus("Done");
+                    //EnableInterface();
+                    //UpdateStatus("Done");
                 }
             );
             virtualFileDataObject.SetData(files);
 
-            VirtualFileDataObject.DoDragDrop(virtualFileDataObject, DragDropEffects.Move | DragDropEffects.Copy);
+            VirtualFileDataObject.DoDragDrop(virtualFileDataObject, DragDropEffects.Copy);
         }
 
         private void listView1_DragEnter(object sender, DragEventArgs e)
@@ -897,6 +902,12 @@ namespace iDeviceBrowser
             {
                 SelectNode(Utilities.PathCombine(GetPathFromNodeForDisplay(_selectedNode), listView1.SelectedItems[0].Text));
             }
+        }
+
+        private void previewToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            previewToolStripMenuItem.Checked = !previewToolStripMenuItem.Checked;
+            splitContainer2.Panel2Collapsed = !previewToolStripMenuItem.Checked;
         }
     }
 }

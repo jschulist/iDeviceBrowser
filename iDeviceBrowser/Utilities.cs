@@ -13,6 +13,11 @@ namespace iDeviceBrowser
 
         private static readonly string[] _sizes = { "B", "KB", "MB", "GB", "PB" };
 
+        public static void Copy(Stream from, Stream to)
+        {
+            Copy(from, to, null, () => false);
+        }
+
         public static void Copy(Stream from, Stream to, Action<ulong> bytesTransfered, Func<bool> cancelled)
         {
             byte[] buffer = new byte[Constants.BUFFER_SIZE];
@@ -21,7 +26,10 @@ namespace iDeviceBrowser
             while (bytes > 0 && !cancelled())
             {
                 to.Write(buffer, 0, bytes);
-                bytesTransfered((ulong)bytes);
+                if (bytesTransfered != null)
+                {
+                    bytesTransfered((ulong)bytes);
+                }
                 bytes = from.Read(buffer, 0, Constants.BUFFER_SIZE);
             }
         }

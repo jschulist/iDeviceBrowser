@@ -373,7 +373,7 @@ namespace iDeviceBrowser
         /// Uses Stream instead of IEnumerable(T) because Stream is more likely
         /// to be natural for the expected scenarios.
         /// </remarks>
-        public void SetData(short dataFormat, int index, Action<Stream> streamData)
+        public void SetData(short dataFormat, int index, Action<Stream> streamData, long? length)
         {
             _dataObjects.Add(
                 new DataObject
@@ -396,6 +396,10 @@ namespace iDeviceBrowser
                             // Wrap in a .NET-friendly Stream and call provided code to fill it
                             using (var stream = new IStreamWrapper(iStream))
                             {
+                                if (length.HasValue)
+                                {
+                                    stream.SetLength(length.Value);
+                                }
                                 streamData(stream);
                             }
                         }
@@ -455,7 +459,7 @@ namespace iDeviceBrowser
             var index = 0;
             foreach (var fileDescriptor in fileDescriptors)
             {
-                SetData(FILECONTENTS, index, fileDescriptor.StreamContents);
+                SetData(FILECONTENTS, index, fileDescriptor.StreamContents, fileDescriptor.Length);
                 index++;
             }
         }
@@ -794,7 +798,7 @@ namespace iDeviceBrowser
             /// <param name="value">The desired length of the current stream in bytes.</param>
             public override void SetLength(long value)
             {
-                throw new NotImplementedException();
+                _iStream.SetSize(value);
             }
 
             /// <summary>
