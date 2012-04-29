@@ -30,441 +30,455 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Main));
-            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.treeView1 = new System.Windows.Forms.TreeView();
-            this.imageList1 = new System.Windows.Forms.ImageList(this.components);
-            this.splitContainer2 = new System.Windows.Forms.SplitContainer();
-            this.listView1 = new System.Windows.Forms.ListView();
-            this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.fileContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.refreshFile = new System.Windows.Forms.ToolStripMenuItem();
+            this.MainSplitContainer = new System.Windows.Forms.SplitContainer();
+            this.FolderTreeView = new System.Windows.Forms.TreeView();
+            this.FolderAndFileImageList = new System.Windows.Forms.ImageList(this.components);
+            this.PreviewSplitContainer = new System.Windows.Forms.SplitContainer();
+            this.FolderAndFileListView = new System.Windows.Forms.ListView();
+            this.NameColumnHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.SizeColumnHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.TypeColumnHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.FolderAndFileContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.FolderAndFileContextMenu_RefreshToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator12 = new System.Windows.Forms.ToolStripSeparator();
-            this.saveFile = new System.Windows.Forms.ToolStripMenuItem();
-            this.saveAsFile = new System.Windows.Forms.ToolStripMenuItem();
+            this.FolderAndFileContextMenu_SaveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.FolderAndFileContextMenu_SaveAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator13 = new System.Windows.Forms.ToolStripSeparator();
-            this.renameFile = new System.Windows.Forms.ToolStripMenuItem();
-            this.replaceFile = new System.Windows.Forms.ToolStripMenuItem();
-            this.deleteFile = new System.Windows.Forms.ToolStripMenuItem();
-            this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
-            this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripProgressBar1 = new System.Windows.Forms.ToolStripProgressBar();
-            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
-            this.functionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.detailsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.largeIconsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.smallIconsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.FolderAndFileContextMenu_RenameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.FolderAndFileContextMenu_ReplaceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.FolderAndFileContextMenu_DeleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.FolderAndFileContextMenu_NewFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.PreviewGroupBox = new System.Windows.Forms.GroupBox();
+            this.MainStatusStrip = new System.Windows.Forms.StatusStrip();
+            this.MainStatusStrip_StatusToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.MainStatusStrip_ProgressToolStripProgressBar = new System.Windows.Forms.ToolStripProgressBar();
+            this.MainMenuStrip = new System.Windows.Forms.MenuStrip();
+            this.FileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.FileToolStripMenuItem_ExitExitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.EditToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ViewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ViewToolStripMenuItem_DetailsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ViewToolStripMenuItem_LargeIconsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ViewToolStripMenuItem_SmallIconsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
-            this.showGroupsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.favoritesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.folderContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.refreshFolder = new System.Windows.Forms.ToolStripMenuItem();
+            this.ViewToolStripMenuItem_ShowGroupsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ViewToolStripMenuItem_PreviewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.FavoritesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.MainPanel = new System.Windows.Forms.Panel();
+            this.FolderContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.FolderContextMenu_RefreshToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator11 = new System.Windows.Forms.ToolStripSeparator();
-            this.newFolder = new System.Windows.Forms.ToolStripMenuItem();
+            this.FolderContextMenu_NewFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator10 = new System.Windows.Forms.ToolStripSeparator();
-            this.saveFolder = new System.Windows.Forms.ToolStripMenuItem();
+            this.FolderContextMenu_SaveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator9 = new System.Windows.Forms.ToolStripSeparator();
-            this.renameFolder = new System.Windows.Forms.ToolStripMenuItem();
-            this.deleteFolder = new System.Windows.Forms.ToolStripMenuItem();
-            this.previewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.splitContainer1.Panel1.SuspendLayout();
-            this.splitContainer1.Panel2.SuspendLayout();
-            this.splitContainer1.SuspendLayout();
-            this.splitContainer2.Panel1.SuspendLayout();
-            this.splitContainer2.Panel2.SuspendLayout();
-            this.splitContainer2.SuspendLayout();
-            this.fileContextMenu.SuspendLayout();
-            this.statusStrip1.SuspendLayout();
-            this.menuStrip1.SuspendLayout();
-            this.panel1.SuspendLayout();
-            this.folderContextMenu.SuspendLayout();
+            this.FolderContextMenu_RenameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.FolderContextMenu_DeleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.MainSplitContainer.Panel1.SuspendLayout();
+            this.MainSplitContainer.Panel2.SuspendLayout();
+            this.MainSplitContainer.SuspendLayout();
+            this.PreviewSplitContainer.Panel1.SuspendLayout();
+            this.PreviewSplitContainer.Panel2.SuspendLayout();
+            this.PreviewSplitContainer.SuspendLayout();
+            this.FolderAndFileContextMenu.SuspendLayout();
+            this.MainStatusStrip.SuspendLayout();
+            this.MainMenuStrip.SuspendLayout();
+            this.MainPanel.SuspendLayout();
+            this.FolderContextMenu.SuspendLayout();
             this.SuspendLayout();
             // 
-            // splitContainer1
+            // MainSplitContainer
             // 
-            this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitContainer1.Location = new System.Drawing.Point(0, 0);
-            this.splitContainer1.Name = "splitContainer1";
+            this.MainSplitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.MainSplitContainer.Location = new System.Drawing.Point(0, 0);
+            this.MainSplitContainer.Name = "MainSplitContainer";
             // 
-            // splitContainer1.Panel1
+            // MainSplitContainer.Panel1
             // 
-            this.splitContainer1.Panel1.Controls.Add(this.treeView1);
-            this.splitContainer1.Panel1.Padding = new System.Windows.Forms.Padding(3, 0, 0, 0);
+            this.MainSplitContainer.Panel1.Controls.Add(this.FolderTreeView);
+            this.MainSplitContainer.Panel1.Padding = new System.Windows.Forms.Padding(3, 0, 0, 0);
             // 
-            // splitContainer1.Panel2
+            // MainSplitContainer.Panel2
             // 
-            this.splitContainer1.Panel2.Controls.Add(this.splitContainer2);
-            this.splitContainer1.Panel2.Padding = new System.Windows.Forms.Padding(0, 0, 3, 0);
-            this.splitContainer1.Size = new System.Drawing.Size(701, 412);
-            this.splitContainer1.SplitterDistance = 232;
-            this.splitContainer1.SplitterWidth = 6;
-            this.splitContainer1.TabIndex = 0;
+            this.MainSplitContainer.Panel2.Controls.Add(this.PreviewSplitContainer);
+            this.MainSplitContainer.Panel2.Padding = new System.Windows.Forms.Padding(0, 0, 3, 0);
+            this.MainSplitContainer.Size = new System.Drawing.Size(701, 412);
+            this.MainSplitContainer.SplitterDistance = 232;
+            this.MainSplitContainer.SplitterWidth = 6;
+            this.MainSplitContainer.TabIndex = 0;
             // 
-            // treeView1
+            // FolderTreeView
             // 
-            this.treeView1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.treeView1.ImageIndex = 0;
-            this.treeView1.ImageList = this.imageList1;
-            this.treeView1.Location = new System.Drawing.Point(3, 0);
-            this.treeView1.Name = "treeView1";
-            this.treeView1.PathSeparator = "/";
-            this.treeView1.SelectedImageIndex = 0;
-            this.treeView1.ShowRootLines = false;
-            this.treeView1.Size = new System.Drawing.Size(229, 412);
-            this.treeView1.TabIndex = 0;
-            this.treeView1.AfterExpand += new System.Windows.Forms.TreeViewEventHandler(this.treeView1_AfterExpand);
-            this.treeView1.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeView1_AfterSelect);
+            this.FolderTreeView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.FolderTreeView.ImageIndex = 0;
+            this.FolderTreeView.ImageList = this.FolderAndFileImageList;
+            this.FolderTreeView.Location = new System.Drawing.Point(3, 0);
+            this.FolderTreeView.Name = "FolderTreeView";
+            this.FolderTreeView.PathSeparator = "/";
+            this.FolderTreeView.SelectedImageIndex = 0;
+            this.FolderTreeView.ShowRootLines = false;
+            this.FolderTreeView.Size = new System.Drawing.Size(229, 412);
+            this.FolderTreeView.TabIndex = 0;
+            this.FolderTreeView.AfterExpand += new System.Windows.Forms.TreeViewEventHandler(this.FolderTreeView_AfterExpand);
+            this.FolderTreeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.FolderTreeView_AfterSelect);
             // 
-            // imageList1
+            // FolderAndFileImageList
             // 
-            this.imageList1.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageList1.ImageStream")));
-            this.imageList1.TransparentColor = System.Drawing.Color.Transparent;
-            this.imageList1.Images.SetKeyName(0, "folder.ico");
-            this.imageList1.Images.SetKeyName(1, "file.ico");
+            this.FolderAndFileImageList.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("FolderAndFileImageList.ImageStream")));
+            this.FolderAndFileImageList.TransparentColor = System.Drawing.Color.Transparent;
+            this.FolderAndFileImageList.Images.SetKeyName(0, "folder.ico");
+            this.FolderAndFileImageList.Images.SetKeyName(1, "file.ico");
             // 
-            // splitContainer2
+            // PreviewSplitContainer
             // 
-            this.splitContainer2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitContainer2.Location = new System.Drawing.Point(0, 0);
-            this.splitContainer2.Name = "splitContainer2";
-            this.splitContainer2.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            this.PreviewSplitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.PreviewSplitContainer.Location = new System.Drawing.Point(0, 0);
+            this.PreviewSplitContainer.Name = "PreviewSplitContainer";
+            this.PreviewSplitContainer.Orientation = System.Windows.Forms.Orientation.Horizontal;
             // 
-            // splitContainer2.Panel1
+            // PreviewSplitContainer.Panel1
             // 
-            this.splitContainer2.Panel1.Controls.Add(this.listView1);
+            this.PreviewSplitContainer.Panel1.Controls.Add(this.FolderAndFileListView);
             // 
-            // splitContainer2.Panel2
+            // PreviewSplitContainer.Panel2
             // 
-            this.splitContainer2.Panel2.Controls.Add(this.groupBox3);
-            this.splitContainer2.Size = new System.Drawing.Size(460, 412);
-            this.splitContainer2.SplitterDistance = 206;
-            this.splitContainer2.TabIndex = 2;
+            this.PreviewSplitContainer.Panel2.Controls.Add(this.PreviewGroupBox);
+            this.PreviewSplitContainer.Size = new System.Drawing.Size(460, 412);
+            this.PreviewSplitContainer.SplitterDistance = 206;
+            this.PreviewSplitContainer.TabIndex = 2;
             // 
-            // listView1
+            // FolderAndFileListView
             // 
-            this.listView1.AllowColumnReorder = true;
-            this.listView1.AllowDrop = true;
-            this.listView1.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnHeader1,
-            this.columnHeader2,
-            this.columnHeader3});
-            this.listView1.ContextMenuStrip = this.fileContextMenu;
-            this.listView1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.listView1.Location = new System.Drawing.Point(0, 0);
-            this.listView1.Name = "listView1";
-            this.listView1.Size = new System.Drawing.Size(460, 206);
-            this.listView1.SmallImageList = this.imageList1;
-            this.listView1.TabIndex = 0;
-            this.listView1.UseCompatibleStateImageBehavior = false;
-            this.listView1.View = System.Windows.Forms.View.Details;
-            this.listView1.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.listView1_ItemDrag);
-            this.listView1.DragDrop += new System.Windows.Forms.DragEventHandler(this.listView1_DragDrop);
-            this.listView1.DragEnter += new System.Windows.Forms.DragEventHandler(this.listView1_DragEnter);
-            this.listView1.QueryContinueDrag += new System.Windows.Forms.QueryContinueDragEventHandler(this.listView1_QueryContinueDrag);
-            this.listView1.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.listView1_MouseDoubleClick);
+            this.FolderAndFileListView.AllowColumnReorder = true;
+            this.FolderAndFileListView.AllowDrop = true;
+            this.FolderAndFileListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.NameColumnHeader,
+            this.SizeColumnHeader,
+            this.TypeColumnHeader});
+            this.FolderAndFileListView.ContextMenuStrip = this.FolderAndFileContextMenu;
+            this.FolderAndFileListView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.FolderAndFileListView.Location = new System.Drawing.Point(0, 0);
+            this.FolderAndFileListView.Name = "FolderAndFileListView";
+            this.FolderAndFileListView.Size = new System.Drawing.Size(460, 206);
+            this.FolderAndFileListView.SmallImageList = this.FolderAndFileImageList;
+            this.FolderAndFileListView.TabIndex = 0;
+            this.FolderAndFileListView.UseCompatibleStateImageBehavior = false;
+            this.FolderAndFileListView.View = System.Windows.Forms.View.Details;
+            this.FolderAndFileListView.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.FolderAndFileListView_ItemDrag);
+            this.FolderAndFileListView.DragDrop += new System.Windows.Forms.DragEventHandler(this.FolderAndFileListView_DragDrop);
+            this.FolderAndFileListView.DragEnter += new System.Windows.Forms.DragEventHandler(this.FolderAndFileListView_DragEnter);
+            this.FolderAndFileListView.KeyDown += new System.Windows.Forms.KeyEventHandler(this.FolderAndFileListView_KeyDown);
+            this.FolderAndFileListView.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.FolderAndFileListView_MouseDoubleClick);
             // 
-            // columnHeader1
+            // NameColumnHeader
             // 
-            this.columnHeader1.Text = "Name";
-            this.columnHeader1.Width = 250;
+            this.NameColumnHeader.Text = "Name";
+            this.NameColumnHeader.Width = 250;
             // 
-            // columnHeader2
+            // SizeColumnHeader
             // 
-            this.columnHeader2.Text = "Size";
-            this.columnHeader2.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.SizeColumnHeader.Text = "Size";
+            this.SizeColumnHeader.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
-            // columnHeader3
+            // TypeColumnHeader
             // 
-            this.columnHeader3.Text = "Type";
+            this.TypeColumnHeader.Text = "Type";
             // 
-            // fileContextMenu
+            // FolderAndFileContextMenu
             // 
-            this.fileContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.refreshFile,
+            this.FolderAndFileContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.FolderAndFileContextMenu_RefreshToolStripMenuItem,
             this.toolStripSeparator12,
-            this.saveFile,
-            this.saveAsFile,
+            this.FolderAndFileContextMenu_NewFolderToolStripMenuItem,
+            this.toolStripSeparator1,
+            this.FolderAndFileContextMenu_SaveToolStripMenuItem,
+            this.FolderAndFileContextMenu_SaveAsToolStripMenuItem,
             this.toolStripSeparator13,
-            this.renameFile,
-            this.replaceFile,
-            this.deleteFile});
-            this.fileContextMenu.Name = "fileContextMenu";
-            this.fileContextMenu.Size = new System.Drawing.Size(125, 148);
-            this.fileContextMenu.Opening += new System.ComponentModel.CancelEventHandler(this.fileContextMenu_Opening);
-            this.fileContextMenu.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.fileContextMenu_ItemClicked);
+            this.FolderAndFileContextMenu_RenameToolStripMenuItem,
+            this.FolderAndFileContextMenu_ReplaceToolStripMenuItem,
+            this.FolderAndFileContextMenu_DeleteToolStripMenuItem});
+            this.FolderAndFileContextMenu.Name = "fileContextMenu";
+            this.FolderAndFileContextMenu.Size = new System.Drawing.Size(153, 198);
+            this.FolderAndFileContextMenu.Opening += new System.ComponentModel.CancelEventHandler(this.FolderAndFileContextMenu_Opening);
+            this.FolderAndFileContextMenu.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.FolderAndFileContextMenu_ItemClicked);
             // 
-            // refreshFile
+            // FolderAndFileContextMenu_RefreshToolStripMenuItem
             // 
-            this.refreshFile.Name = "refreshFile";
-            this.refreshFile.Size = new System.Drawing.Size(124, 22);
-            this.refreshFile.Text = "Refresh";
+            this.FolderAndFileContextMenu_RefreshToolStripMenuItem.Name = "FolderAndFileContextMenu_RefreshToolStripMenuItem";
+            this.FolderAndFileContextMenu_RefreshToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.FolderAndFileContextMenu_RefreshToolStripMenuItem.Text = "Refresh";
             // 
             // toolStripSeparator12
             // 
             this.toolStripSeparator12.Name = "toolStripSeparator12";
-            this.toolStripSeparator12.Size = new System.Drawing.Size(121, 6);
+            this.toolStripSeparator12.Size = new System.Drawing.Size(149, 6);
             // 
-            // saveFile
+            // FolderAndFileContextMenu_SaveToolStripMenuItem
             // 
-            this.saveFile.Name = "saveFile";
-            this.saveFile.Size = new System.Drawing.Size(124, 22);
-            this.saveFile.Text = "Save...";
+            this.FolderAndFileContextMenu_SaveToolStripMenuItem.Name = "FolderAndFileContextMenu_SaveToolStripMenuItem";
+            this.FolderAndFileContextMenu_SaveToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.FolderAndFileContextMenu_SaveToolStripMenuItem.Text = "Save...";
             // 
-            // saveAsFile
+            // FolderAndFileContextMenu_SaveAsToolStripMenuItem
             // 
-            this.saveAsFile.Name = "saveAsFile";
-            this.saveAsFile.Size = new System.Drawing.Size(124, 22);
-            this.saveAsFile.Text = "Save As...";
+            this.FolderAndFileContextMenu_SaveAsToolStripMenuItem.Name = "FolderAndFileContextMenu_SaveAsToolStripMenuItem";
+            this.FolderAndFileContextMenu_SaveAsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.FolderAndFileContextMenu_SaveAsToolStripMenuItem.Text = "Save As...";
             // 
             // toolStripSeparator13
             // 
             this.toolStripSeparator13.Name = "toolStripSeparator13";
-            this.toolStripSeparator13.Size = new System.Drawing.Size(121, 6);
+            this.toolStripSeparator13.Size = new System.Drawing.Size(149, 6);
             // 
-            // renameFile
+            // FolderAndFileContextMenu_RenameToolStripMenuItem
             // 
-            this.renameFile.Name = "renameFile";
-            this.renameFile.Size = new System.Drawing.Size(124, 22);
-            this.renameFile.Text = "Rename";
+            this.FolderAndFileContextMenu_RenameToolStripMenuItem.Name = "FolderAndFileContextMenu_RenameToolStripMenuItem";
+            this.FolderAndFileContextMenu_RenameToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.FolderAndFileContextMenu_RenameToolStripMenuItem.Text = "Rename";
             // 
-            // replaceFile
+            // FolderAndFileContextMenu_ReplaceToolStripMenuItem
             // 
-            this.replaceFile.Name = "replaceFile";
-            this.replaceFile.Size = new System.Drawing.Size(124, 22);
-            this.replaceFile.Text = "Replace...";
+            this.FolderAndFileContextMenu_ReplaceToolStripMenuItem.Name = "FolderAndFileContextMenu_ReplaceToolStripMenuItem";
+            this.FolderAndFileContextMenu_ReplaceToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.FolderAndFileContextMenu_ReplaceToolStripMenuItem.Text = "Replace...";
             // 
-            // deleteFile
+            // FolderAndFileContextMenu_DeleteToolStripMenuItem
             // 
-            this.deleteFile.Name = "deleteFile";
-            this.deleteFile.Size = new System.Drawing.Size(124, 22);
-            this.deleteFile.Text = "Delete";
+            this.FolderAndFileContextMenu_DeleteToolStripMenuItem.Name = "FolderAndFileContextMenu_DeleteToolStripMenuItem";
+            this.FolderAndFileContextMenu_DeleteToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.FolderAndFileContextMenu_DeleteToolStripMenuItem.Text = "Delete";
             // 
-            // groupBox3
+            // FolderAndFileContextMenu_NewFolderToolStripMenuItem
             // 
-            this.groupBox3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBox3.Location = new System.Drawing.Point(0, 0);
-            this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(460, 202);
-            this.groupBox3.TabIndex = 2;
-            this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "Preview";
+            this.FolderAndFileContextMenu_NewFolderToolStripMenuItem.Name = "FolderAndFileContextMenu_NewFolderToolStripMenuItem";
+            this.FolderAndFileContextMenu_NewFolderToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.FolderAndFileContextMenu_NewFolderToolStripMenuItem.Text = "New Folder";
             // 
-            // statusStrip1
+            // PreviewGroupBox
             // 
-            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripStatusLabel1,
-            this.toolStripProgressBar1});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 436);
-            this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(701, 22);
-            this.statusStrip1.TabIndex = 1;
-            this.statusStrip1.Text = "statusStrip1";
+            this.PreviewGroupBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.PreviewGroupBox.Location = new System.Drawing.Point(0, 0);
+            this.PreviewGroupBox.Name = "PreviewGroupBox";
+            this.PreviewGroupBox.Size = new System.Drawing.Size(460, 202);
+            this.PreviewGroupBox.TabIndex = 2;
+            this.PreviewGroupBox.TabStop = false;
+            this.PreviewGroupBox.Text = "Preview";
             // 
-            // toolStripStatusLabel1
+            // MainStatusStrip
             // 
-            this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(584, 17);
-            this.toolStripStatusLabel1.Spring = true;
-            this.toolStripStatusLabel1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.MainStatusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.MainStatusStrip_StatusToolStripStatusLabel,
+            this.MainStatusStrip_ProgressToolStripProgressBar});
+            this.MainStatusStrip.Location = new System.Drawing.Point(0, 436);
+            this.MainStatusStrip.Name = "MainStatusStrip";
+            this.MainStatusStrip.Size = new System.Drawing.Size(701, 22);
+            this.MainStatusStrip.TabIndex = 1;
+            this.MainStatusStrip.Text = "statusStrip1";
             // 
-            // toolStripProgressBar1
+            // MainStatusStrip_StatusToolStripStatusLabel
             // 
-            this.toolStripProgressBar1.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.toolStripProgressBar1.Name = "toolStripProgressBar1";
-            this.toolStripProgressBar1.Size = new System.Drawing.Size(100, 16);
-            this.toolStripProgressBar1.Step = 1;
+            this.MainStatusStrip_StatusToolStripStatusLabel.Name = "MainStatusStrip_StatusToolStripStatusLabel";
+            this.MainStatusStrip_StatusToolStripStatusLabel.Size = new System.Drawing.Size(584, 17);
+            this.MainStatusStrip_StatusToolStripStatusLabel.Spring = true;
+            this.MainStatusStrip_StatusToolStripStatusLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // menuStrip1
+            // MainStatusStrip_ProgressToolStripProgressBar
             // 
-            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.functionsToolStripMenuItem,
-            this.editToolStripMenuItem,
-            this.viewToolStripMenuItem,
-            this.favoritesToolStripMenuItem});
-            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
-            this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(701, 24);
-            this.menuStrip1.TabIndex = 2;
-            this.menuStrip1.Text = "menuStrip1";
+            this.MainStatusStrip_ProgressToolStripProgressBar.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.MainStatusStrip_ProgressToolStripProgressBar.Name = "MainStatusStrip_ProgressToolStripProgressBar";
+            this.MainStatusStrip_ProgressToolStripProgressBar.Size = new System.Drawing.Size(100, 16);
+            this.MainStatusStrip_ProgressToolStripProgressBar.Step = 1;
             // 
-            // functionsToolStripMenuItem
+            // MainMenuStrip
             // 
-            this.functionsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.exitToolStripMenuItem});
-            this.functionsToolStripMenuItem.Name = "functionsToolStripMenuItem";
-            this.functionsToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
-            this.functionsToolStripMenuItem.Text = "&File";
+            this.MainMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.FileToolStripMenuItem,
+            this.EditToolStripMenuItem,
+            this.ViewToolStripMenuItem,
+            this.FavoritesToolStripMenuItem});
+            this.MainMenuStrip.Location = new System.Drawing.Point(0, 0);
+            this.MainMenuStrip.Name = "MainMenuStrip";
+            this.MainMenuStrip.Size = new System.Drawing.Size(701, 24);
+            this.MainMenuStrip.TabIndex = 2;
+            this.MainMenuStrip.Text = "menuStrip1";
             // 
-            // exitToolStripMenuItem
+            // FileToolStripMenuItem
             // 
-            this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(92, 22);
-            this.exitToolStripMenuItem.Text = "Exit";
+            this.FileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.FileToolStripMenuItem_ExitExitToolStripMenuItem});
+            this.FileToolStripMenuItem.Name = "FileToolStripMenuItem";
+            this.FileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
+            this.FileToolStripMenuItem.Text = "&File";
             // 
-            // editToolStripMenuItem
+            // FileToolStripMenuItem_ExitExitToolStripMenuItem
             // 
-            this.editToolStripMenuItem.Name = "editToolStripMenuItem";
-            this.editToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
-            this.editToolStripMenuItem.Text = "&Edit";
+            this.FileToolStripMenuItem_ExitExitToolStripMenuItem.Name = "FileToolStripMenuItem_ExitExitToolStripMenuItem";
+            this.FileToolStripMenuItem_ExitExitToolStripMenuItem.Size = new System.Drawing.Size(92, 22);
+            this.FileToolStripMenuItem_ExitExitToolStripMenuItem.Text = "Exit";
             // 
-            // viewToolStripMenuItem
+            // EditToolStripMenuItem
             // 
-            this.viewToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.detailsToolStripMenuItem,
-            this.largeIconsToolStripMenuItem,
-            this.smallIconsToolStripMenuItem,
+            this.EditToolStripMenuItem.Name = "EditToolStripMenuItem";
+            this.EditToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
+            this.EditToolStripMenuItem.Text = "&Edit";
+            // 
+            // ViewToolStripMenuItem
+            // 
+            this.ViewToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.ViewToolStripMenuItem_DetailsToolStripMenuItem,
+            this.ViewToolStripMenuItem_LargeIconsToolStripMenuItem,
+            this.ViewToolStripMenuItem_SmallIconsToolStripMenuItem,
             this.toolStripSeparator5,
-            this.showGroupsToolStripMenuItem,
-            this.previewToolStripMenuItem});
-            this.viewToolStripMenuItem.Name = "viewToolStripMenuItem";
-            this.viewToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
-            this.viewToolStripMenuItem.Text = "&View";
+            this.ViewToolStripMenuItem_ShowGroupsToolStripMenuItem,
+            this.ViewToolStripMenuItem_PreviewToolStripMenuItem});
+            this.ViewToolStripMenuItem.Name = "ViewToolStripMenuItem";
+            this.ViewToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
+            this.ViewToolStripMenuItem.Text = "&View";
             // 
-            // detailsToolStripMenuItem
+            // ViewToolStripMenuItem_DetailsToolStripMenuItem
             // 
-            this.detailsToolStripMenuItem.Name = "detailsToolStripMenuItem";
-            this.detailsToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
-            this.detailsToolStripMenuItem.Text = "Details";
+            this.ViewToolStripMenuItem_DetailsToolStripMenuItem.Name = "ViewToolStripMenuItem_DetailsToolStripMenuItem";
+            this.ViewToolStripMenuItem_DetailsToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
+            this.ViewToolStripMenuItem_DetailsToolStripMenuItem.Text = "Details";
             // 
-            // largeIconsToolStripMenuItem
+            // ViewToolStripMenuItem_LargeIconsToolStripMenuItem
             // 
-            this.largeIconsToolStripMenuItem.Name = "largeIconsToolStripMenuItem";
-            this.largeIconsToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
-            this.largeIconsToolStripMenuItem.Text = "Large Icons";
+            this.ViewToolStripMenuItem_LargeIconsToolStripMenuItem.Name = "ViewToolStripMenuItem_LargeIconsToolStripMenuItem";
+            this.ViewToolStripMenuItem_LargeIconsToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
+            this.ViewToolStripMenuItem_LargeIconsToolStripMenuItem.Text = "Large Icons";
             // 
-            // smallIconsToolStripMenuItem
+            // ViewToolStripMenuItem_SmallIconsToolStripMenuItem
             // 
-            this.smallIconsToolStripMenuItem.Name = "smallIconsToolStripMenuItem";
-            this.smallIconsToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
-            this.smallIconsToolStripMenuItem.Text = "Small Icons";
+            this.ViewToolStripMenuItem_SmallIconsToolStripMenuItem.Name = "ViewToolStripMenuItem_SmallIconsToolStripMenuItem";
+            this.ViewToolStripMenuItem_SmallIconsToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
+            this.ViewToolStripMenuItem_SmallIconsToolStripMenuItem.Text = "Small Icons";
             // 
             // toolStripSeparator5
             // 
             this.toolStripSeparator5.Name = "toolStripSeparator5";
             this.toolStripSeparator5.Size = new System.Drawing.Size(141, 6);
             // 
-            // showGroupsToolStripMenuItem
+            // ViewToolStripMenuItem_ShowGroupsToolStripMenuItem
             // 
-            this.showGroupsToolStripMenuItem.Name = "showGroupsToolStripMenuItem";
-            this.showGroupsToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
-            this.showGroupsToolStripMenuItem.Text = "Show Groups";
+            this.ViewToolStripMenuItem_ShowGroupsToolStripMenuItem.Name = "ViewToolStripMenuItem_ShowGroupsToolStripMenuItem";
+            this.ViewToolStripMenuItem_ShowGroupsToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
+            this.ViewToolStripMenuItem_ShowGroupsToolStripMenuItem.Text = "Show Groups";
             // 
-            // favoritesToolStripMenuItem
+            // ViewToolStripMenuItem_PreviewToolStripMenuItem
             // 
-            this.favoritesToolStripMenuItem.Name = "favoritesToolStripMenuItem";
-            this.favoritesToolStripMenuItem.Size = new System.Drawing.Size(66, 20);
-            this.favoritesToolStripMenuItem.Text = "&Favorites";
+            this.ViewToolStripMenuItem_PreviewToolStripMenuItem.Checked = true;
+            this.ViewToolStripMenuItem_PreviewToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.ViewToolStripMenuItem_PreviewToolStripMenuItem.Name = "ViewToolStripMenuItem_PreviewToolStripMenuItem";
+            this.ViewToolStripMenuItem_PreviewToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
+            this.ViewToolStripMenuItem_PreviewToolStripMenuItem.Text = "Preview";
+            this.ViewToolStripMenuItem_PreviewToolStripMenuItem.Click += new System.EventHandler(this.MainMenuStrip_ViewToolStripMenuItem_PreviewToolStripMenuItem_Click);
             // 
-            // panel1
+            // FavoritesToolStripMenuItem
             // 
-            this.panel1.Controls.Add(this.splitContainer1);
-            this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel1.Location = new System.Drawing.Point(0, 24);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(701, 412);
-            this.panel1.TabIndex = 3;
+            this.FavoritesToolStripMenuItem.Name = "FavoritesToolStripMenuItem";
+            this.FavoritesToolStripMenuItem.Size = new System.Drawing.Size(66, 20);
+            this.FavoritesToolStripMenuItem.Text = "&Favorites";
             // 
-            // folderContextMenu
+            // MainPanel
             // 
-            this.folderContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.refreshFolder,
+            this.MainPanel.Controls.Add(this.MainSplitContainer);
+            this.MainPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.MainPanel.Location = new System.Drawing.Point(0, 24);
+            this.MainPanel.Name = "MainPanel";
+            this.MainPanel.Size = new System.Drawing.Size(701, 412);
+            this.MainPanel.TabIndex = 3;
+            // 
+            // FolderContextMenu
+            // 
+            this.FolderContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.FolderContextMenu_RefreshToolStripMenuItem,
             this.toolStripSeparator11,
-            this.newFolder,
+            this.FolderContextMenu_NewFolderToolStripMenuItem,
             this.toolStripSeparator10,
-            this.saveFolder,
+            this.FolderContextMenu_SaveToolStripMenuItem,
             this.toolStripSeparator9,
-            this.renameFolder,
-            this.deleteFolder});
-            this.folderContextMenu.Name = "contextMenuStrip1";
-            this.folderContextMenu.Size = new System.Drawing.Size(135, 132);
-            this.folderContextMenu.Opening += new System.ComponentModel.CancelEventHandler(this.folderContextMenu_Opening);
-            this.folderContextMenu.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.folderContextMenu_ItemClicked);
+            this.FolderContextMenu_RenameToolStripMenuItem,
+            this.FolderContextMenu_DeleteToolStripMenuItem});
+            this.FolderContextMenu.Name = "contextMenuStrip1";
+            this.FolderContextMenu.Size = new System.Drawing.Size(135, 132);
+            this.FolderContextMenu.Opening += new System.ComponentModel.CancelEventHandler(this.FolderContextMenu_Opening);
+            this.FolderContextMenu.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.FolderContextMenu_ItemClicked);
             // 
-            // refreshFolder
+            // FolderContextMenu_RefreshToolStripMenuItem
             // 
-            this.refreshFolder.Name = "refreshFolder";
-            this.refreshFolder.Size = new System.Drawing.Size(134, 22);
-            this.refreshFolder.Text = "Refresh";
+            this.FolderContextMenu_RefreshToolStripMenuItem.Name = "FolderContextMenu_RefreshToolStripMenuItem";
+            this.FolderContextMenu_RefreshToolStripMenuItem.Size = new System.Drawing.Size(134, 22);
+            this.FolderContextMenu_RefreshToolStripMenuItem.Text = "Refresh";
             // 
             // toolStripSeparator11
             // 
             this.toolStripSeparator11.Name = "toolStripSeparator11";
             this.toolStripSeparator11.Size = new System.Drawing.Size(131, 6);
             // 
-            // newFolder
+            // FolderContextMenu_NewFolderToolStripMenuItem
             // 
-            this.newFolder.Name = "newFolder";
-            this.newFolder.Size = new System.Drawing.Size(134, 22);
-            this.newFolder.Text = "New Folder";
+            this.FolderContextMenu_NewFolderToolStripMenuItem.Name = "FolderContextMenu_NewFolderToolStripMenuItem";
+            this.FolderContextMenu_NewFolderToolStripMenuItem.Size = new System.Drawing.Size(134, 22);
+            this.FolderContextMenu_NewFolderToolStripMenuItem.Text = "New Folder";
             // 
             // toolStripSeparator10
             // 
             this.toolStripSeparator10.Name = "toolStripSeparator10";
             this.toolStripSeparator10.Size = new System.Drawing.Size(131, 6);
             // 
-            // saveFolder
+            // FolderContextMenu_SaveToolStripMenuItem
             // 
-            this.saveFolder.Name = "saveFolder";
-            this.saveFolder.Size = new System.Drawing.Size(134, 22);
-            this.saveFolder.Text = "Save...";
+            this.FolderContextMenu_SaveToolStripMenuItem.Name = "FolderContextMenu_SaveToolStripMenuItem";
+            this.FolderContextMenu_SaveToolStripMenuItem.Size = new System.Drawing.Size(134, 22);
+            this.FolderContextMenu_SaveToolStripMenuItem.Text = "Save...";
             // 
             // toolStripSeparator9
             // 
             this.toolStripSeparator9.Name = "toolStripSeparator9";
             this.toolStripSeparator9.Size = new System.Drawing.Size(131, 6);
             // 
-            // renameFolder
+            // FolderContextMenu_RenameToolStripMenuItem
             // 
-            this.renameFolder.Name = "renameFolder";
-            this.renameFolder.Size = new System.Drawing.Size(134, 22);
-            this.renameFolder.Text = "Rename";
+            this.FolderContextMenu_RenameToolStripMenuItem.Name = "FolderContextMenu_RenameToolStripMenuItem";
+            this.FolderContextMenu_RenameToolStripMenuItem.Size = new System.Drawing.Size(134, 22);
+            this.FolderContextMenu_RenameToolStripMenuItem.Text = "Rename";
             // 
-            // deleteFolder
+            // FolderContextMenu_DeleteToolStripMenuItem
             // 
-            this.deleteFolder.Name = "deleteFolder";
-            this.deleteFolder.Size = new System.Drawing.Size(134, 22);
-            this.deleteFolder.Text = "Delete";
+            this.FolderContextMenu_DeleteToolStripMenuItem.Name = "FolderContextMenu_DeleteToolStripMenuItem";
+            this.FolderContextMenu_DeleteToolStripMenuItem.Size = new System.Drawing.Size(134, 22);
+            this.FolderContextMenu_DeleteToolStripMenuItem.Text = "Delete";
             // 
-            // previewToolStripMenuItem
+            // toolStripSeparator1
             // 
-            this.previewToolStripMenuItem.Checked = true;
-            this.previewToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.previewToolStripMenuItem.Name = "previewToolStripMenuItem";
-            this.previewToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.previewToolStripMenuItem.Text = "Preview";
-            this.previewToolStripMenuItem.Click += new System.EventHandler(this.previewToolStripMenuItem_Click);
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(149, 6);
             // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(701, 458);
-            this.Controls.Add(this.panel1);
-            this.Controls.Add(this.statusStrip1);
-            this.Controls.Add(this.menuStrip1);
-            this.MainMenuStrip = this.menuStrip1;
+            this.Controls.Add(this.MainPanel);
+            this.Controls.Add(this.MainStatusStrip);
+            this.Controls.Add(this.MainMenuStrip);
             this.Name = "Main";
             this.Text = "iDeviceBrowser";
             this.Load += new System.EventHandler(this.Main_Load);
-            this.splitContainer1.Panel1.ResumeLayout(false);
-            this.splitContainer1.Panel2.ResumeLayout(false);
-            this.splitContainer1.ResumeLayout(false);
-            this.splitContainer2.Panel1.ResumeLayout(false);
-            this.splitContainer2.Panel2.ResumeLayout(false);
-            this.splitContainer2.ResumeLayout(false);
-            this.fileContextMenu.ResumeLayout(false);
-            this.statusStrip1.ResumeLayout(false);
-            this.statusStrip1.PerformLayout();
-            this.menuStrip1.ResumeLayout(false);
-            this.menuStrip1.PerformLayout();
-            this.panel1.ResumeLayout(false);
-            this.folderContextMenu.ResumeLayout(false);
+            this.MainSplitContainer.Panel1.ResumeLayout(false);
+            this.MainSplitContainer.Panel2.ResumeLayout(false);
+            this.MainSplitContainer.ResumeLayout(false);
+            this.PreviewSplitContainer.Panel1.ResumeLayout(false);
+            this.PreviewSplitContainer.Panel2.ResumeLayout(false);
+            this.PreviewSplitContainer.ResumeLayout(false);
+            this.FolderAndFileContextMenu.ResumeLayout(false);
+            this.MainStatusStrip.ResumeLayout(false);
+            this.MainStatusStrip.PerformLayout();
+            this.MainMenuStrip.ResumeLayout(false);
+            this.MainMenuStrip.PerformLayout();
+            this.MainPanel.ResumeLayout(false);
+            this.FolderContextMenu.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -472,51 +486,51 @@
 
         #endregion
 
-        private System.Windows.Forms.SplitContainer splitContainer1;
-        //private System.Windows.Forms.GroupBox groupBox1;
-        //private System.Windows.Forms.GroupBox groupBox2;
-        private System.Windows.Forms.StatusStrip statusStrip1;
-        private System.Windows.Forms.MenuStrip menuStrip1;
-        private System.Windows.Forms.ToolStripMenuItem functionsToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem viewToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem favoritesToolStripMenuItem;
-        private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.SplitContainer splitContainer2;
-        private System.Windows.Forms.GroupBox groupBox3;
-        private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem detailsToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem largeIconsToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem smallIconsToolStripMenuItem;
+        private System.Windows.Forms.SplitContainer MainSplitContainer;
+        private System.Windows.Forms.StatusStrip MainStatusStrip;
+        private System.Windows.Forms.MenuStrip MainMenuStrip;
+        private System.Windows.Forms.ToolStripMenuItem FileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem EditToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem ViewToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem FavoritesToolStripMenuItem;
+        private System.Windows.Forms.Panel MainPanel;
+        private System.Windows.Forms.SplitContainer PreviewSplitContainer;
+        private System.Windows.Forms.GroupBox PreviewGroupBox;
+        private System.Windows.Forms.ToolStripMenuItem FileToolStripMenuItem_ExitExitToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem ViewToolStripMenuItem_DetailsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem ViewToolStripMenuItem_LargeIconsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem ViewToolStripMenuItem_SmallIconsToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
-        private System.Windows.Forms.ToolStripMenuItem showGroupsToolStripMenuItem;
-        private System.Windows.Forms.TreeView treeView1;
-        private System.Windows.Forms.ListView listView1;
-        private System.Windows.Forms.ColumnHeader columnHeader1;
-        private System.Windows.Forms.ColumnHeader columnHeader2;
-        private System.Windows.Forms.ColumnHeader columnHeader3;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
-        private System.Windows.Forms.ToolStripProgressBar toolStripProgressBar1;
-        private System.Windows.Forms.ContextMenuStrip folderContextMenu;
-        private System.Windows.Forms.ToolStripMenuItem refreshFolder;
-        private System.Windows.Forms.ToolStripMenuItem deleteFolder;
-        private System.Windows.Forms.ToolStripMenuItem saveFolder;
-        private System.Windows.Forms.ToolStripMenuItem renameFolder;
+        private System.Windows.Forms.ToolStripMenuItem ViewToolStripMenuItem_ShowGroupsToolStripMenuItem;
+        private System.Windows.Forms.TreeView FolderTreeView;
+        private System.Windows.Forms.ListView FolderAndFileListView;
+        private System.Windows.Forms.ColumnHeader NameColumnHeader;
+        private System.Windows.Forms.ColumnHeader SizeColumnHeader;
+        private System.Windows.Forms.ColumnHeader TypeColumnHeader;
+        private System.Windows.Forms.ToolStripStatusLabel MainStatusStrip_StatusToolStripStatusLabel;
+        private System.Windows.Forms.ToolStripProgressBar MainStatusStrip_ProgressToolStripProgressBar;
+        private System.Windows.Forms.ContextMenuStrip FolderContextMenu;
+        private System.Windows.Forms.ToolStripMenuItem FolderContextMenu_RefreshToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem FolderContextMenu_DeleteToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem FolderContextMenu_SaveToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem FolderContextMenu_RenameToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator10;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator9;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator11;
-        private System.Windows.Forms.ToolStripMenuItem newFolder;
-        private System.Windows.Forms.ContextMenuStrip fileContextMenu;
-        private System.Windows.Forms.ToolStripMenuItem refreshFile;
+        private System.Windows.Forms.ToolStripMenuItem FolderContextMenu_NewFolderToolStripMenuItem;
+        private System.Windows.Forms.ContextMenuStrip FolderAndFileContextMenu;
+        private System.Windows.Forms.ToolStripMenuItem FolderAndFileContextMenu_RefreshToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator12;
-        private System.Windows.Forms.ToolStripMenuItem saveAsFile;
+        private System.Windows.Forms.ToolStripMenuItem FolderAndFileContextMenu_SaveAsToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator13;
-        private System.Windows.Forms.ToolStripMenuItem renameFile;
-        private System.Windows.Forms.ToolStripMenuItem replaceFile;
-        private System.Windows.Forms.ToolStripMenuItem deleteFile;
-        private System.Windows.Forms.ToolStripMenuItem saveFile;
-        private System.Windows.Forms.ImageList imageList1;
-        private System.Windows.Forms.ToolStripMenuItem previewToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem FolderAndFileContextMenu_RenameToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem FolderAndFileContextMenu_ReplaceToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem FolderAndFileContextMenu_DeleteToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem FolderAndFileContextMenu_SaveToolStripMenuItem;
+        private System.Windows.Forms.ImageList FolderAndFileImageList;
+        private System.Windows.Forms.ToolStripMenuItem ViewToolStripMenuItem_PreviewToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem FolderAndFileContextMenu_NewFolderToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
     }
 }
 

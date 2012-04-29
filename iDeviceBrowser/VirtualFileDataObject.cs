@@ -11,6 +11,9 @@ namespace iDeviceBrowser
 {
     public delegate TResult Func<TResult>();
 
+    // Ported the following to WinForms with other small modifications
+    // http://blogs.msdn.com/b/delay/archive/2009/11/04/creating-something-from-nothing-asynchronously-developer-friendly-virtual-file-implementation-for-net-improved.aspx
+
     /// <summary>
     /// Class implementing drag/drop and clipboard support for virtual files.
     /// Also offers an alternate interface to the IDataObject interface.

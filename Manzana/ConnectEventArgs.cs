@@ -36,30 +36,34 @@ using System.Text;
 
 namespace Manzana
 {
-	/// <summary>
-	/// Provides data for the <see>Connected</see> and <see>Disconnected</see> events.
-	/// </summary>
-	public class ConnectEventArgs : EventArgs{
-		private NotificationMessage	message;
-		unsafe private void* device;
- 
-		unsafe internal ConnectEventArgs(AMDeviceNotificationCallbackInfo cbi) {
-			message = cbi.msg;
-			device = cbi.dev;
-		}
+    /// <summary>
+    /// Provides data for the <see>Connected</see> and <see>Disconnected</see> events.
+    /// </summary>
+    public class ConnectEventArgs : EventArgs
+    {
+        private NotificationMessage message;
+        unsafe private void* device;
 
-		/// <summary>
-		/// Returns the information for the device that was connected or disconnected.
-		/// </summary>
-		unsafe public void* Device {
-			get { return device; }
-		}
+        unsafe internal ConnectEventArgs(AMDeviceNotificationCallbackInfo cbi)
+        {
+            message = cbi.msg;
+            device = cbi.dev;
+        }
 
-		/// <summary>
-		/// Returns the type of event.
-		/// </summary>
-		public NotificationMessage Message {
-			get { return message; }
-		}
-	}
+        /// <summary>
+        /// Returns the information for the device that was connected or disconnected.
+        /// </summary>
+        unsafe public void* Device
+        {
+            get { return device; }
+        }
+
+        /// <summary>
+        /// Returns the type of event.
+        /// </summary>
+        public NotificationMessage Message
+        {
+            get { return message; }
+        }
+    }
 }

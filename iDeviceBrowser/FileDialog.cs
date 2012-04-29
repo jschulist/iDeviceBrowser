@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.IO;
-using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using Manzana;
@@ -13,7 +9,9 @@ using System.Diagnostics;
 namespace iDeviceBrowser
 {
     // TODO: CAN IFILEOPERATION (http://msdn.microsoft.com/en-us/magazine/cc163304.aspx) REPLACE THIS?
+
     // TODO: SHOULD WE PROMPT FOR OVERWRITES?
+
     public partial class FileDialog : Form
     {
         public FileDialog(iPhone iDeviceInterface)
@@ -23,7 +21,7 @@ namespace iDeviceBrowser
             _iDeviceInterface = iDeviceInterface;
             _timer = new System.Timers.Timer();
             _timer.Interval = 1000;
-            _timer.Elapsed += new System.Timers.ElapsedEventHandler(TimerElapsed);
+            _timer.Elapsed += new System.Timers.ElapsedEventHandler(Timer_Elapsed);
         }
 
         public delegate void Callback();
@@ -36,6 +34,14 @@ namespace iDeviceBrowser
         private ulong _lastBytesValue = 0;
         private System.Timers.Timer _timer;
         private bool _isCancelled = false;
+
+        #region REMOVE THIS IF WE DON'T END UP USING IT
+        public SynchronizationContext SyncContext { get; set; }
+        public void ShowAsync()
+        {
+            this.SyncContext.Post(s => this.Show(), null);
+        }
+        #endregion REMOVE THIS IF WE DON'T END UP USING IT
 
         public void CopyLocalSources(IEnumerable<string> sources, string destination)
         {
@@ -51,7 +57,7 @@ namespace iDeviceBrowser
 
                     Stopwatch sp = new Stopwatch();
                     sp.Start();
-                    Utilities.CopyFileToDevice(_iDeviceInterface, file.Source, Utilities.PathCombine(file.Destination, file.Filename), (bytes) => BytesCopied(bytes), () => _isCancelled);
+                    Utilities.CopyFileToDevice(_iDeviceInterface, file.Source, Utilities.PathCombine(file.Destination, file.Filename), BytesCopied, () => _isCancelled);
                     sp.Stop();
                     long milliseconds = sp.ElapsedMilliseconds;
                 }
@@ -72,14 +78,14 @@ namespace iDeviceBrowser
 
                     Stopwatch sp = new Stopwatch();
                     sp.Start();
-                    Utilities.CopyFileFromDevice(_iDeviceInterface, file.Source, Path.Combine(file.Destination, file.Filename), (bytes) => BytesCopied(bytes), () => _isCancelled);
+                    Utilities.CopyFileFromDevice(_iDeviceInterface, file.Source, Path.Combine(file.Destination, file.Filename), BytesCopied, () => _isCancelled);
                     sp.Stop();
                     long milliseconds = sp.ElapsedMilliseconds;
                 }
             );
         }
 
-        public void Copy(Func<IEnumerable<SourceAndDestination>> getFiles, Action<SourceAndDestination> copy)
+        private void Copy(Func<IEnumerable<SourceAndDestination>> getFiles, Action<SourceAndDestination> copy)
         {
             Async(
                 null,
@@ -268,7 +274,15 @@ namespace iDeviceBrowser
             }
         }
 
-        private void TimerElapsed(object sender, System.Timers.ElapsedEventArgs e)
+        private void Cancel()
+        {
+            _isCancelled = true;
+            _timer.Stop();
+            Hide();
+        }
+
+        #region Events
+        private void Timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             ulong difference = _lastBytesValue - _bytesCounter;
 
@@ -296,12 +310,6 @@ namespace iDeviceBrowser
         {
             Cancel();
         }
-
-        private void Cancel()
-        {
-            _isCancelled = true;
-            _timer.Stop();
-            Hide();
-        }
+        #endregion Events
     }
 }

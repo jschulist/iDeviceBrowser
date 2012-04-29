@@ -16,7 +16,7 @@ namespace iDeviceBrowser
 
         // TODO: ADD SUPPORT FOR DRAGGING FOLDERS FROM THE TREEVIEW TO THE DESKTOP
 
-        // TODO: CONSIDER ADDING PREVIEW BACK IN
+        // TODO: CONSIDER ADDING PREVIEW BACK IN, TEXT, IMAGE, PLISTS, ETC.
 
         private readonly iPhone _iDeviceInterface = new iPhone();
         private bool _isConnected;
@@ -34,53 +34,15 @@ namespace iDeviceBrowser
             InitializeComponent();
         }
 
-        private void Main_Load(object sender, EventArgs e)
-        {
-            AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
-            Application.ThreadException += new ThreadExceptionEventHandler(Application_ThreadException);
-
-            _userSettings.Setup();
-
-            UpdateTitle();
-
-            _iDeviceInterface.Connect += new ConnectEventHandler(ConnectionChanged);
-            _iDeviceInterface.Disconnect += new ConnectEventHandler(ConnectionChanged);
-
-            PopulateFavorites();
-        }
-
-        private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
-        private void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
         private void PopulateFavorites()
         {
             foreach (Favorite favorite in _userSettings.Favorites)
             {
                 ToolStripMenuItem tsmi = new ToolStripMenuItem(favorite.Name);
                 tsmi.Tag = favorite.Path;
-                tsmi.Click += new EventHandler(Favorite_Click);
-                favoritesToolStripMenuItem.DropDownItems.Add(tsmi);
+                tsmi.Click += new EventHandler(FavoritesToolStripMenuItem_Click);
+                FavoritesToolStripMenuItem.DropDownItems.Add(tsmi);
             }
-        }
-
-        private void Favorite_Click(object sender, EventArgs e)
-        {
-            ToolStripMenuItem tsmi = sender as ToolStripMenuItem;
-            string path = tsmi.Tag.ToString();
-
-            Async(DisableInterface, delegate { SelectNode(path); }, EnableInterface);
-        }
-
-        private void ConnectionChanged(object sender, ConnectEventArgs args)
-        {
-            SetConnectionChanged();
         }
 
         private void SetConnectionChanged()
@@ -89,27 +51,27 @@ namespace iDeviceBrowser
 
             if (_isConnected)
             {
-                toolStripStatusLabel1.Text = "Connected";
+                MainStatusStrip_StatusToolStripStatusLabel.Text = "Connected";
 
                 PopulateInitialFolders();
             }
             else
             {
-                toolStripStatusLabel1.Text = "Disconnected";
+                MainStatusStrip_StatusToolStripStatusLabel.Text = "Disconnected";
 
-                Cleanup();
+                ResetUserInterface();
             }
 
             ShiftToUiThread(UpdateTitle);
         }
 
-        private void Cleanup()
+        private void ResetUserInterface()
         {
             ShiftToUiThread(
                 delegate
                 {
-                    treeView1.Nodes.Clear();
-                    listView1.Items.Clear();
+                    FolderTreeView.Nodes.Clear();
+                    FolderAndFileListView.Items.Clear();
                 }
             );
         }
@@ -137,16 +99,16 @@ namespace iDeviceBrowser
             ShiftToUiThread(
                 () =>
                 {
-                    treeView1.BeginUpdate();
+                    FolderTreeView.BeginUpdate();
 
-                    treeView1.Nodes.Add(rootNode);
-                    treeView1.ContextMenuStrip = folderContextMenu;
+                    FolderTreeView.Nodes.Add(rootNode);
+                    FolderTreeView.ContextMenuStrip = FolderContextMenu;
 
                     rootNode.Expand();
                     rootNode.Tag = true;
-                    treeView1.SelectedNode = rootNode;
+                    FolderTreeView.SelectedNode = rootNode;
 
-                    treeView1.EndUpdate();
+                    FolderTreeView.EndUpdate();
                 }
                 );
 
@@ -178,7 +140,7 @@ namespace iDeviceBrowser
             ShiftToUiThread(
                 delegate
                 {
-                    toolStripStatusLabel1.Text = message;
+                    MainStatusStrip_StatusToolStripStatusLabel.Text = message;
                 }
             );
         }
@@ -188,9 +150,9 @@ namespace iDeviceBrowser
             ShiftToUiThread(
                 delegate
                 {
-                    treeView1.BeginUpdate();
+                    FolderTreeView.BeginUpdate();
                     parent.Nodes.Remove(child);
-                    treeView1.EndUpdate();
+                    FolderTreeView.EndUpdate();
                 }
             );
         }
@@ -200,7 +162,7 @@ namespace iDeviceBrowser
             ShiftToUiThread(
                 delegate
                 {
-                    treeView1.BeginUpdate();
+                    FolderTreeView.BeginUpdate();
 
                     foreach (NodeAndFolders naf in nodeAndFolders)
                     {
@@ -208,7 +170,7 @@ namespace iDeviceBrowser
                         AddFoldersToNode(naf.Node, naf.Folders);
                     }
 
-                    treeView1.EndUpdate();
+                    FolderTreeView.EndUpdate();
                 }
             );
         }
@@ -257,11 +219,11 @@ namespace iDeviceBrowser
             return folders;
         }
 
-        private void RefreshFilesAsync(Callback callback = null)
+        private void RefreshListViewAsync(Callback callback)
         {
             Async(
                 DisableInterface,
-                RefreshFiles,
+                RefreshListView,
                 () =>
                 {
                     EnableInterface();
@@ -272,62 +234,73 @@ namespace iDeviceBrowser
                 });
         }
 
-        private void RefreshFiles()
+        private void RefreshListView()
         {
             string path = GetPathFromNode(_selectedNode);
 
-            string[] folders = null;
-            string[] files = null;
+            IEnumerable<string> folders = null;
+            IEnumerable<string> files = null;
             try
             {
-                folders = _iDeviceInterface.GetDirectories(path);
-                files = _iDeviceInterface.GetFiles(path);
+                folders = GetFoldersAndFiles(path, out files);
             }
             catch (Exception ex) // most likely someone removed the folder
             {
                 RemoveNodeFromNode(_selectedNode.Parent, _selectedNode);
             }
 
-            UpdateFiles(path, folders, files);
+            UpdateListView(path, folders, files);
         }
 
-        private void UpdateFiles(string path, IEnumerable<string> folders, IEnumerable<string> files)
+        private IEnumerable<string> GetFoldersAndFiles(string path, out IEnumerable<string> files)
+        {
+            IEnumerable<string> folders = _iDeviceInterface.GetDirectories(path);
+            files = _iDeviceInterface.GetFiles(path);
+
+            return folders;
+        }
+
+        private void UpdateListView(string path, IEnumerable<string> folders, IEnumerable<string> files)
         {
             ShiftToUiThread(
-               delegate
-               {
-                   if (files != null)
-                   {
-                       listView1.BeginUpdate();
+                () =>
+                {
+                    if (files != null)
+                    {
+                        FolderAndFileListView.BeginUpdate();
 
-                       listView1.Items.Clear();
+                        FolderAndFileListView.Items.Clear();
 
-                       foreach (string folder in folders)
-                       {
-                           ListViewItem listViewItemTemp = new ListViewItem(folder);
-                           listViewItemTemp.ImageIndex = 0;
+                        foreach (string folder in folders)
+                        {
+                            AddFolderToListView(folder);
+                        }
 
-                           listView1.Items.Add(listViewItemTemp);
-                       }
+                        foreach (string file in files)
+                        {
+                            string filePath = Utilities.PathCombine(path, file);
 
-                       foreach (string file in files)
-                       {
-                           string filePath = Utilities.PathCombine(path, file);
+                            ListViewItem listViewItemTemp = new ListViewItem(file);
+                            listViewItemTemp.ImageIndex = 1;
 
-                           ListViewItem listViewItemTemp = new ListViewItem(file);
-                           listViewItemTemp.ImageIndex = 1;
+                            UInt64 fileSize = _iDeviceInterface.FileSize(filePath);
+                            listViewItemTemp.SubItems.Add(Utilities.GetFileSize(fileSize));
+                            //listViewItemTemp.SubItems.Add(GetFileType(lstTemp.ImageIndex));
 
-                           UInt64 fileSize = _iDeviceInterface.FileSize(filePath);
-                           listViewItemTemp.SubItems.Add(Utilities.GetFileSize(fileSize));
-                           //listViewItemTemp.SubItems.Add(GetFileType(lstTemp.ImageIndex));
+                            FolderAndFileListView.Items.Add(listViewItemTemp);
+                        }
 
-                           listView1.Items.Add(listViewItemTemp);
-                       }
+                        FolderAndFileListView.EndUpdate();
+                    }
+                });
+        }
 
-                       listView1.EndUpdate();
-                   }
-               }
-            );
+        private void AddFolderToListView(string folder)
+        {
+            ListViewItem listViewItemTemp = new ListViewItem(folder);
+            listViewItemTemp.ImageIndex = 0;
+
+            FolderAndFileListView.Items.Add(listViewItemTemp);
         }
 
         private string GetPathFromNodeForDisplay(TreeNode node)
@@ -406,8 +379,8 @@ namespace iDeviceBrowser
             ShiftToUiThread(
                 delegate
                 {
-                    treeView1.Enabled = false;
-                    listView1.Enabled = false;
+                    FolderTreeView.Enabled = false;
+                    FolderAndFileListView.Enabled = false;
                 }
             );
         }
@@ -417,8 +390,8 @@ namespace iDeviceBrowser
             ShiftToUiThread(
                 delegate
                 {
-                    treeView1.Enabled = true;
-                    listView1.Enabled = true;
+                    FolderTreeView.Enabled = true;
+                    FolderAndFileListView.Enabled = true;
                 }
             );
         }
@@ -467,13 +440,15 @@ namespace iDeviceBrowser
         {
             string existingPath = GetPathFromNode(node);
             string folderResult = null;
+            // TODO: VALIDATE RESULT TO ENSURE IT'S A VALID FOLDER
             DialogResult dialogResult = InputBox.Show(string.Format("Create New Folder Under: {0}", existingPath), "Enter the name of the new folder:", ref folderResult);
             if (dialogResult == DialogResult.OK)
             {
                 _iDeviceInterface.CreateDirectory(existingPath + folderResult);
-                // update our tree
-                AddFoldersToNode(_selectedNode, new List<Folder>() { new Folder(folderResult, null) });
+                // update our tree and listview
                 // TODO: CONSIDER ADDING THIS NODE IN THE CORRECT SPOT OR SORTING AFTER ADDING IT
+                AddFoldersToNode(_selectedNode, new List<Folder>() { new Folder(folderResult, null) });
+                AddFolderToListView(folderResult);
                 UpdateStatus("Directory created");
             }
         }
@@ -521,7 +496,7 @@ namespace iDeviceBrowser
 
         private void DeleteFiles(string path, ListView.SelectedListViewItemCollection items)
         {
-            string message = items.Count > 0 ? "Are you sure you want to delete the selected files?" : string.Format("Are you sure you want to delete file '{0}'?", items[0].Text);
+            string message = items.Count > 1 ? "Are you sure you want to delete the selected files?" : string.Format("Are you sure you want to delete file '{0}'?", items[0].Text);
             DialogResult dialogResult = MessageBox.Show(message, "Delete File(s)", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
             if (dialogResult == DialogResult.Yes)
             {
@@ -537,15 +512,16 @@ namespace iDeviceBrowser
                     () =>
                     {
                         UpdateStatus("File(s) deleted");
-                        RefreshFilesAsync();
+                        // TODO: REMOVE FOLDERS FROM TREEVIEW THAT WERE DELETED
+                        RefreshListViewAsync(null);
                     }
                 );
             }
         }
 
-        private void Delete(IEnumerable<string> foldersOrFiles)
+        private void Delete(IEnumerable<string> foldersAndFiles)
         {
-            foreach (string folderOrFile in foldersOrFiles)
+            foreach (string folderOrFile in foldersAndFiles)
             {
                 if (_iDeviceInterface.IsDirectory(folderOrFile))
                 {
@@ -580,7 +556,7 @@ namespace iDeviceBrowser
 
         private void SaveFiles(string path, ListView.SelectedListViewItemCollection items)
         {
-            if (items.Count == 1 && _iDeviceInterface.IsFile(Utilities.PathCombine(path, listView1.SelectedItems[0].Text)))
+            if (items.Count == 1 && _iDeviceInterface.IsFile(Utilities.PathCombine(path, FolderAndFileListView.SelectedItems[0].Text)))
             {
                 ListViewItem item = items[0];
 
@@ -621,7 +597,7 @@ namespace iDeviceBrowser
 
         private void SelectNode(string path)
         {
-            TreeNode[] nodes = treeView1.Nodes.Find(ROOT_PATH, false);
+            TreeNode[] nodes = FolderTreeView.Nodes.Find(ROOT_PATH, false);
 
             string[] pieces = path.Split(new char[] { Constants.PATH_SEPARATOR }, StringSplitOptions.RemoveEmptyEntries);
 
@@ -643,19 +619,12 @@ namespace iDeviceBrowser
                 {
                     if (nodes.Length > 0)
                     {
-                        treeView1.SelectedNode = nodes[0];
+                        FolderTreeView.SelectedNode = nodes[0];
                         nodes[0].Expand();
-                        treeView1.Focus();
+                        FolderTreeView.Focus();
                     }
                 }
             );
-        }
-
-        private void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
-        {
-            _selectedNode = e.Node;
-            RefreshFilesAsync(delegate { treeView1.SelectedNode = _selectedNode; treeView1.Focus(); });
-            UpdateSelectedPath();
         }
 
         private void UpdateSelectedPath()
@@ -664,90 +633,141 @@ namespace iDeviceBrowser
             //groupBox2.Text = "Files in: " + GetPathFromNodeForDisplay(_selectedNode);
         }
 
-        private void treeView1_AfterExpand(object sender, TreeViewEventArgs e)
+        #region Events
+        private void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
         {
-            RefreshChildFoldersAsync(e.Node, false);
+            throw new NotImplementedException();
         }
 
-        private void listView1_QueryContinueDrag(object sender, QueryContinueDragEventArgs e)
+        private void Connection_Changed(object sender, ConnectEventArgs args)
         {
-            //ESC pressed
-            if (e.EscapePressed)
-            {
-                e.Action = DragAction.Cancel;
-
-                return;
-            }
-
-            //Drop!
-            if (e.KeyState == 0)
-            {
-                _dataObj.SetData(ShellClipboardFormats.CFSTR_INDRAGLOOP, 0);
-
-                e.Action = DragAction.Drop;
-
-                return;
-            }
-
-            e.Action = DragAction.Continue;
+            SetConnectionChanged();
         }
 
-        //private void listView1_ItemDrag(object sender, ItemDragEventArgs e)
-        //{
-        //    // create an array of strings to hold the filename(s)
-        //    string[] fileNames = new string[listView1.SelectedItems.Count];
-        //    Dictionary<string, string> mapping = new Dictionary<string, string>();
-
-        //    string path = GetPathFromNode(treeView1.SelectedNode);
-
-        //    // create temporary files that the user can drag.
-        //    for (int i = 0; i < listView1.SelectedItems.Count; i++)
-        //    {
-        //        fileNames[i] = System.IO.Path.Combine(System.IO.Path.GetTempPath(), listView1.SelectedItems[i].Text);
-        //        mapping.Add(fileNames[i], PathCombine(path, listView1.SelectedItems[i].Text));
-        //    }
-
-        //    // create the data object used for the drag drop operation
-        //    _dataObj = new ShellDataObject(_iDeviceInterface, mapping);
-        //    _dataObj.StatusUpdate += delegate(string s) { Async(null, delegate { UpdateStatus(s); }, null); };
-
-        //    // add the list of files to the data object
-        //    _dataObj.SetData(DataFormats.FileDrop, fileNames);
-
-        //    // set the preferred drop effect
-        //    _dataObj.SetData(ShellClipboardFormats.CFSTR_PREFERREDDROPEFFECT, DragDropEffects.Move);
-
-        //    // indicate that we are in a drag loop
-        //    _dataObj.SetData(ShellClipboardFormats.CFSTR_INDRAGLOOP, 1);
-
-        //    // initiate the drag operation
-        //    listView1.DoDragDrop(_dataObj, DragDropEffects.Move | DragDropEffects.Copy);
-
-        //    // free the data object
-        //    _dataObj = null;
-        //}
-
-        private void listView1_ItemDrag(object sender, ItemDragEventArgs e)
+        private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-            int count = listView1.SelectedItems.Count;
+            throw new NotImplementedException();
+        }
+
+        private void FavoritesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ToolStripMenuItem tsmi = sender as ToolStripMenuItem;
+            string path = tsmi.Tag.ToString();
+
+            Async(DisableInterface, delegate { SelectNode(path); }, EnableInterface);
+        }
+
+        private void FolderAndFileContextMenu_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+            ContextMenuStrip cms = sender as ContextMenuStrip;
+            if (cms != null)
+            {
+                cms.Close();
+            }
+
+            TreeNode node = _selectedNode;
+            string path = GetPathFromNodeForDisplay(node);
+
+            if (e.ClickedItem == FolderAndFileContextMenu_RefreshToolStripMenuItem)
+            {
+                RefreshListViewAsync(() => UpdateStatus("Refresh complete"));
+            }
+            else if (e.ClickedItem == FolderAndFileContextMenu_NewFolderToolStripMenuItem)
+            {
+                CreateDirectory(node);
+            }
+            else if (e.ClickedItem == FolderAndFileContextMenu_SaveToolStripMenuItem)
+            {
+                SaveFiles(path, FolderAndFileListView.SelectedItems);
+            }
+            else if (e.ClickedItem == FolderAndFileContextMenu_SaveAsToolStripMenuItem)
+            {
+                SaveFiles(path, FolderAndFileListView.SelectedItems);
+            }
+            else if (e.ClickedItem == FolderAndFileContextMenu_RenameToolStripMenuItem)
+            {
+                RenameFile(path, FolderAndFileListView.SelectedItems[0]);
+            }
+            else if (e.ClickedItem == FolderAndFileContextMenu_ReplaceToolStripMenuItem)
+            {
+                throw new NotImplementedException(string.Format("Context menu '{0}' not implemented", e.ClickedItem.Name));
+            }
+            else if (e.ClickedItem == FolderAndFileContextMenu_DeleteToolStripMenuItem)
+            {
+                DeleteFiles(path, FolderAndFileListView.SelectedItems);
+            }
+            else // default
+            {
+                if (!(e.ClickedItem is ToolStripSeparator))
+                {
+                    throw new NotImplementedException(string.Format("Context menu '{0}' not implemented", e.ClickedItem.Name));
+                }
+            }
+        }
+
+        private void FolderAndFileContextMenu_Opening(object sender, CancelEventArgs e)
+        {
+            int count = FolderAndFileListView.SelectedItems.Count;
+
+            FolderAndFileContextMenu_SaveToolStripMenuItem.Enabled = count > 0;
+            FolderAndFileContextMenu_SaveAsToolStripMenuItem.Enabled = count == 1 && _iDeviceInterface.IsFile(Utilities.PathCombine(GetPathFromNodeForDisplay(_selectedNode), FolderAndFileListView.SelectedItems[0].Text));
+            FolderAndFileContextMenu_RenameToolStripMenuItem.Enabled = count == 1;
+            FolderAndFileContextMenu_ReplaceToolStripMenuItem.Enabled = count == 1;
+            FolderAndFileContextMenu_DeleteToolStripMenuItem.Enabled = count > 0;
+        }
+
+        private void FolderAndFileListView_DragDrop(object sender, DragEventArgs e)
+        {
+            // TODO: LOCK DOWN THE INTERFACE WHILE A FILE COPY IS IN PROGRESS
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                string destination = GetPathFromNode(_selectedNode);
+                string[] sources = e.Data.GetData(DataFormats.FileDrop) as string[];
+
+                if (sources != null)
+                {
+                    FileDialog fd = new FileDialog(_iDeviceInterface);
+                    fd.Show();
+                    fd.CopyLocalSources(sources, destination);
+                }
+            }
+        }
+
+        private void FolderAndFileListView_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Effect = DragDropEffects.All;
+            }
+        }
+
+        private void FolderAndFileListView_ItemDrag(object sender, ItemDragEventArgs e)
+        {
+            int count = FolderAndFileListView.SelectedItems.Count;
 
             string path = GetPathFromNode(_selectedNode);
+
+            //FileDialog fd = new FileDialog(_iDeviceInterface);
+            //fd.SyncContext = SynchronizationContext.Current;
 
             VirtualFileDataObject.FileDescriptor[] files = new VirtualFileDataObject.FileDescriptor[count];
             for (int i = 0; i < count; i++)
             {
-                string source = Utilities.PathCombine(path, listView1.SelectedItems[i].Text);
+                string source = Utilities.PathCombine(path, FolderAndFileListView.SelectedItems[i].Text);
 
                 files[i] = new VirtualFileDataObject.FileDescriptor
                 {
-                    Name = listView1.SelectedItems[i].Text,
+                    Name = FolderAndFileListView.SelectedItems[i].Text,
                     Length = (long)_iDeviceInterface.FileSize(source),
                     StreamContents = destinationStream =>
                     {
+                        //ShiftToUiThread(fd.Show);
+                        //fd.ShowAsync();
                         using (Stream sourceStream = iPhoneFile.OpenRead(_iDeviceInterface, source))
                         {
                             Utilities.Copy(sourceStream, destinationStream);
                         }
+                        //fd.Hide();
                     }
                 };
             }
@@ -769,40 +789,33 @@ namespace iDeviceBrowser
             VirtualFileDataObject.DoDragDrop(virtualFileDataObject, DragDropEffects.Copy);
         }
 
-        private void listView1_DragEnter(object sender, DragEventArgs e)
+        private void FolderAndFileListView_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            // select all
+            if (e.Control && e.KeyCode == Keys.A)
             {
-                e.Effect = DragDropEffects.All;
-            }
-        }
-
-        private void listView1_DragDrop(object sender, DragEventArgs e)
-        {
-            // TODO: LOCK DOWN THE INTERFACE WHILE A FILE COPY IS IN PROGRESS
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
-            {
-                string destination = GetPathFromNode(_selectedNode);
-                string[] sources = e.Data.GetData(DataFormats.FileDrop) as string[];
-
-                if (sources != null)
+                //listView1.MultiSelect = true;
+                foreach (ListViewItem item in FolderAndFileListView.Items)
                 {
-                    FileDialog fd = new FileDialog(_iDeviceInterface);
-                    fd.Show();
-                    fd.CopyLocalSources(sources, destination);
+                    item.Selected = true;
                 }
             }
+            else if (e.KeyCode == Keys.Delete)
+            {
+                string path = GetPathFromNodeForDisplay(_selectedNode);
+                DeleteFiles(path, FolderAndFileListView.SelectedItems);
+            }
         }
 
-        private void folderContextMenu_Opening(object sender, CancelEventArgs e)
+        private void FolderAndFileListView_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            bool isRoot = GetPathFromNode(_selectedNode).Equals(ROOT_PATH);
-
-            renameFolder.Enabled = !isRoot;
-            deleteFolder.Enabled = !isRoot;
+            if (FolderAndFileListView.SelectedItems.Count == 1 && _iDeviceInterface.IsDirectory(Utilities.PathCombine(GetPathFromNodeForDisplay(_selectedNode), FolderAndFileListView.SelectedItems[0].Text)))
+            {
+                SelectNode(Utilities.PathCombine(GetPathFromNodeForDisplay(_selectedNode), FolderAndFileListView.SelectedItems[0].Text));
+            }
         }
 
-        private void folderContextMenu_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        private void FolderContextMenu_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
         {
             ContextMenuStrip cms = sender as ContextMenuStrip;
             if (cms != null)
@@ -812,23 +825,23 @@ namespace iDeviceBrowser
 
             TreeNode node = _selectedNode;
 
-            if (e.ClickedItem == refreshFolder)
+            if (e.ClickedItem == FolderContextMenu_RefreshToolStripMenuItem)
             {
                 RefreshChildFoldersAsync(node, true);
             }
-            else if (e.ClickedItem == newFolder)
+            else if (e.ClickedItem == FolderContextMenu_NewFolderToolStripMenuItem)
             {
                 CreateDirectory(node);
             }
-            else if (e.ClickedItem == saveFolder)
+            else if (e.ClickedItem == FolderContextMenu_SaveToolStripMenuItem)
             {
                 SaveDirectory(node);
             }
-            else if (e.ClickedItem == renameFolder)
+            else if (e.ClickedItem == FolderContextMenu_RenameToolStripMenuItem)
             {
                 RenameDirectory(node);
             }
-            else if (e.ClickedItem == deleteFolder)
+            else if (e.ClickedItem == FolderContextMenu_DeleteToolStripMenuItem)
             {
                 DeleteDirectory(node);
             }
@@ -841,73 +854,46 @@ namespace iDeviceBrowser
             }
         }
 
-        private void fileContextMenu_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        private void FolderContextMenu_Opening(object sender, CancelEventArgs e)
         {
-            ContextMenuStrip cms = sender as ContextMenuStrip;
-            if (cms != null)
-            {
-                cms.Close();
-            }
+            bool isRoot = GetPathFromNode(_selectedNode).Equals(ROOT_PATH);
 
-            TreeNode node = _selectedNode;
-            string path = GetPathFromNodeForDisplay(node);
-
-            if (e.ClickedItem == refreshFile)
-            {
-                RefreshFilesAsync(() => UpdateStatus("Refresh complete"));
-            }
-            else if (e.ClickedItem == saveFile)
-            {
-                SaveFiles(path, listView1.SelectedItems);
-            }
-            else if (e.ClickedItem == saveAsFile)
-            {
-                SaveFiles(path, listView1.SelectedItems);
-            }
-            else if (e.ClickedItem == renameFile)
-            {
-                RenameFile(path, listView1.SelectedItems[0]);
-            }
-            else if (e.ClickedItem == replaceFile)
-            {
-                throw new NotImplementedException(string.Format("Context menu '{0}' not implemented", e.ClickedItem.Name));
-            }
-            else if (e.ClickedItem == deleteFile)
-            {
-                DeleteFiles(path, listView1.SelectedItems);
-            }
-            else // default
-            {
-                if (!(e.ClickedItem is ToolStripSeparator))
-                {
-                    throw new NotImplementedException(string.Format("Context menu '{0}' not implemented", e.ClickedItem.Name));
-                }
-            }
+            FolderContextMenu_RenameToolStripMenuItem.Enabled = !isRoot;
+            FolderContextMenu_DeleteToolStripMenuItem.Enabled = !isRoot;
         }
 
-        private void fileContextMenu_Opening(object sender, CancelEventArgs e)
+        private void FolderTreeView_AfterExpand(object sender, TreeViewEventArgs e)
         {
-            int count = listView1.SelectedItems.Count;
-
-            saveFile.Enabled = count > 0;
-            saveAsFile.Enabled = count == 1 && _iDeviceInterface.IsFile(Utilities.PathCombine(GetPathFromNodeForDisplay(_selectedNode), listView1.SelectedItems[0].Text));
-            renameFile.Enabled = count == 1;
-            replaceFile.Enabled = count == 1;
-            deleteFile.Enabled = count > 0;
+            RefreshChildFoldersAsync(e.Node, false);
         }
 
-        private void listView1_MouseDoubleClick(object sender, MouseEventArgs e)
+        private void FolderTreeView_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            if (listView1.SelectedItems.Count == 1 && _iDeviceInterface.IsDirectory(Utilities.PathCombine(GetPathFromNodeForDisplay(_selectedNode), listView1.SelectedItems[0].Text)))
-            {
-                SelectNode(Utilities.PathCombine(GetPathFromNodeForDisplay(_selectedNode), listView1.SelectedItems[0].Text));
-            }
+            _selectedNode = e.Node;
+            RefreshListViewAsync(delegate { FolderTreeView.SelectedNode = _selectedNode; FolderTreeView.Focus(); });
+            UpdateSelectedPath();
         }
 
-        private void previewToolStripMenuItem_Click(object sender, EventArgs e)
+        private void Main_Load(object sender, EventArgs e)
         {
-            previewToolStripMenuItem.Checked = !previewToolStripMenuItem.Checked;
-            splitContainer2.Panel2Collapsed = !previewToolStripMenuItem.Checked;
+            AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
+            Application.ThreadException += new ThreadExceptionEventHandler(Application_ThreadException);
+
+            _userSettings.Setup();
+
+            UpdateTitle();
+
+            _iDeviceInterface.Connect += new ConnectEventHandler(Connection_Changed);
+            _iDeviceInterface.Disconnect += new ConnectEventHandler(Connection_Changed);
+
+            PopulateFavorites();
         }
+
+        private void MainMenuStrip_ViewToolStripMenuItem_PreviewToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ViewToolStripMenuItem_PreviewToolStripMenuItem.Checked = !ViewToolStripMenuItem_PreviewToolStripMenuItem.Checked;
+            PreviewSplitContainer.Panel2Collapsed = !ViewToolStripMenuItem_PreviewToolStripMenuItem.Checked;
+        }
+        #endregion Events
     }
 }
