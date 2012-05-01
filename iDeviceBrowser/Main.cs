@@ -18,6 +18,8 @@ namespace iDeviceBrowser
 
         // TODO: CONSIDER ADDING PREVIEW BACK IN, TEXT, IMAGE, PLISTS, ETC.
 
+        // TODO: ADD SUPPORT TO CONTEXT MENUS SO THAT ANY FOLDER CAN BE ADDED AS A FAVORITE
+
         private readonly iPhone _iDeviceInterface = new iPhone();
         private bool _isConnected;
         private ShellDataObject _dataObj;
@@ -34,8 +36,13 @@ namespace iDeviceBrowser
             InitializeComponent();
         }
 
-        private void PopulateFavorites()
+        private void PopulateFavoritesDropDown()
         {
+            FavoritesToolStripMenuItem.DropDownItems.Clear();
+
+            FavoritesToolStripMenuItem.DropDownItems.Add(FavoritesToolStripMenuItem_EditToolStripMenuItem);
+            FavoritesToolStripMenuItem.DropDownItems.Add(toolStripSeparator2);
+
             foreach (Favorite favorite in _userSettings.Favorites)
             {
                 ToolStripMenuItem tsmi = new ToolStripMenuItem(favorite.Name);
@@ -657,6 +664,23 @@ namespace iDeviceBrowser
             Async(DisableInterface, delegate { SelectNode(path); }, EnableInterface);
         }
 
+        private void FavoritesToolStripMenuItem_EditToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            FavoritesDialog fd = new FavoritesDialog();
+            fd.Favorites = _userSettings.Favorites;
+            if (fd.ShowDialog() == DialogResult.OK)
+            {
+                _userSettings.Favorites = fd.Favorites;
+                _userSettings.Save();
+                PopulateFavoritesDropDown();
+            }
+        }
+
+        private void FileToolStripMenuItem_ExitExitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
         private void FolderAndFileContextMenu_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
         {
             ContextMenuStrip cms = sender as ContextMenuStrip;
@@ -741,6 +765,7 @@ namespace iDeviceBrowser
             }
         }
 
+        // TODO: ADD SUPPORT FOR TREEVIEW DRAGGING, EXTRACT THE BULK OF THIS LOGIC INTO A SEPARATE METHOD THAT TAKES A LIST OF FILES
         private void FolderAndFileListView_ItemDrag(object sender, ItemDragEventArgs e)
         {
             int count = FolderAndFileListView.SelectedItems.Count;
@@ -886,7 +911,7 @@ namespace iDeviceBrowser
             _iDeviceInterface.Connect += new ConnectEventHandler(Connection_Changed);
             _iDeviceInterface.Disconnect += new ConnectEventHandler(Connection_Changed);
 
-            PopulateFavorites();
+            PopulateFavoritesDropDown();
         }
 
         private void MainMenuStrip_ViewToolStripMenuItem_PreviewToolStripMenuItem_Click(object sender, EventArgs e)
