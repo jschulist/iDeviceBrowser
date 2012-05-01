@@ -52,6 +52,12 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Enumerable.cs" />
+    <Compile Include="ExceptionDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ExceptionDialog.Designer.cs">
+      <DependentUpon>ExceptionDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="Favorite.cs" />
     <Compile Include="FavoriteEditDialog.cs">
       <SubType>Form</SubType>
@@ -94,6 +100,9 @@
     <Compile Include="UserSettings.cs" />
     <Compile Include="Utilities.cs" />
     <Compile Include="VirtualFileDataObject.cs" />
+    <EmbeddedResource Include="ExceptionDialog.resx">
+      <DependentUpon>ExceptionDialog.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="FavoriteEditDialog.resx">
       <DependentUpon>FavoriteEditDialog.cs</DependentUpon>
     </EmbeddedResource>

@@ -20,6 +20,8 @@ namespace iDeviceBrowser
 
         // TODO: ADD SUPPORT TO CONTEXT MENUS SO THAT ANY FOLDER CAN BE ADDED AS A FAVORITE
 
+        // TODO: CONSIDER CHANING MANZANA GENERIC EXCEPTIONS TO TYPED EXCEPTIONS SO THEY CAN BE HANDLED GRACEFULLY
+
         private readonly iPhone _iDeviceInterface = new iPhone();
         private bool _isConnected;
         private ShellDataObject _dataObj;
@@ -122,6 +124,7 @@ namespace iDeviceBrowser
             RefreshChildFoldersAsync(rootNode, true, rootNode.Expand);
         }
 
+        // TODO: CONSIDER DEFERING EAGER FOLDER FETCHING, OR PERFORM IT IN THE BACKGROUND, WHICH WOULD PREVENT US FROM NEEDING TO DISABLE THE CONTROLS WHILE THIS IS TAKING PLACE
         private void RefreshChildFolders(TreeNode node, bool forceRefresh)
         {
             List<NodeAndFolders> nodeAndFolders = new List<NodeAndFolders>();
@@ -157,29 +160,35 @@ namespace iDeviceBrowser
             ShiftToUiThread(
                 delegate
                 {
-                    FolderTreeView.BeginUpdate();
-                    parent.Nodes.Remove(child);
-                    FolderTreeView.EndUpdate();
+                    if (parent != null)
+                    {
+                        FolderTreeView.BeginUpdate();
+                        parent.Nodes.Remove(child);
+                        FolderTreeView.EndUpdate();
+                    }
                 }
             );
         }
 
         private void UpdateChildFolders(IEnumerable<NodeAndFolders> nodeAndFolders)
         {
-            ShiftToUiThread(
-                delegate
-                {
-                    FolderTreeView.BeginUpdate();
-
-                    foreach (NodeAndFolders naf in nodeAndFolders)
+            if (Enumerable.Count(nodeAndFolders) > 0)
+            {
+                ShiftToUiThread(
+                    delegate
                     {
-                        naf.Node.Nodes.Clear();
-                        AddFoldersToNode(naf.Node, naf.Folders);
-                    }
+                        FolderTreeView.BeginUpdate();
 
-                    FolderTreeView.EndUpdate();
-                }
-            );
+                        foreach (NodeAndFolders naf in nodeAndFolders)
+                        {
+                            naf.Node.Nodes.Clear();
+                            AddFoldersToNode(naf.Node, naf.Folders);
+                        }
+
+                        FolderTreeView.EndUpdate();
+                    }
+                );
+            }
         }
 
         private void AddFoldersToNode(TreeNode node, List<Folder> folders)
@@ -640,10 +649,19 @@ namespace iDeviceBrowser
             //groupBox2.Text = "Files in: " + GetPathFromNodeForDisplay(_selectedNode);
         }
 
+        private void ShowExceptionDialog(Exception exception)
+        {
+            this.Hide();
+            ExceptionDialog exceptionDialog = new ExceptionDialog();
+            exceptionDialog.Exception = exception;
+            exceptionDialog.ShowDialog();
+            this.Close();
+        }
+
         #region Events
         private void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
         {
-            throw new NotImplementedException();
+            ShowExceptionDialog(e.Exception);
         }
 
         private void Connection_Changed(object sender, ConnectEventArgs args)
@@ -653,7 +671,7 @@ namespace iDeviceBrowser
 
         private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-            throw new NotImplementedException();
+            ShowExceptionDialog(e.ExceptionObject as Exception);
         }
 
         private void FavoritesToolStripMenuItem_Click(object sender, EventArgs e)
