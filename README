@@ -1,1 +1,3 @@
-Initial commit
+An experiment to improve the performance and responsiveness of the original iPhoneBrowser (http://code.google.com/p/iphonebrowser/) by Kevin Hightower (@hightowk) and Pete Wilson (@NetMage).  What started as a handful of simple modifications to the original VB.NET source eventually led to a fresh start in C#.  In an attempt to ensure the source can be used by the broadest user base it maintains .NET 2.0 compatibility and is released under the same license as the original work, New BSD license.  
+
+Limited testing has indicated that performance, especially for things like file transfers, has improved and now takes about half of what it used to.  Heavy use of threading and background tasks are used to ensure the UI continues to be responsive even during long running tasks.  It should however be noted that feature-wise iDeviceBrowser is currently nowhere near parity with the original work.  
