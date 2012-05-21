@@ -22,9 +22,10 @@ namespace iDeviceBrowser
 
         // TODO: CONSIDER CHANING MANZANA GENERIC EXCEPTIONS TO TYPED EXCEPTIONS SO THEY CAN BE HANDLED GRACEFULLY
 
+        // TODO: CONSIDER ADDING AUTOCOMPLETE TO THE PATH TEXTBOX
+
         private readonly iPhone _iDeviceInterface = new iPhone();
         private bool _isConnected;
-        private ShellDataObject _dataObj;
         private TreeNode _selectedNode;
         private UserSettings _userSettings = new UserSettings();
 
@@ -643,10 +644,14 @@ namespace iDeviceBrowser
             );
         }
 
+        private void SelectNodeAsync(string path)
+        {
+            Async(DisableInterface, delegate { SelectNode(path); }, EnableInterface);
+        }
+
         private void UpdateSelectedPath()
         {
-            // TODO: CHANGE A TEXTBOX
-            //groupBox2.Text = "Files in: " + GetPathFromNodeForDisplay(_selectedNode);
+            PathTextBox.Text = GetPathFromNode(_selectedNode);
         }
 
         private void ShowExceptionDialog(Exception exception)
@@ -679,7 +684,7 @@ namespace iDeviceBrowser
             ToolStripMenuItem tsmi = sender as ToolStripMenuItem;
             string path = tsmi.Tag.ToString();
 
-            Async(DisableInterface, delegate { SelectNode(path); }, EnableInterface);
+            SelectNodeAsync(path);
         }
 
         private void FavoritesToolStripMenuItem_EditToolStripMenuItem_Click(object sender, EventArgs e)
@@ -854,7 +859,7 @@ namespace iDeviceBrowser
         {
             if (FolderAndFileListView.SelectedItems.Count == 1 && _iDeviceInterface.IsDirectory(Utilities.PathCombine(GetPathFromNodeForDisplay(_selectedNode), FolderAndFileListView.SelectedItems[0].Text)))
             {
-                SelectNode(Utilities.PathCombine(GetPathFromNodeForDisplay(_selectedNode), FolderAndFileListView.SelectedItems[0].Text));
+                SelectNodeAsync(Utilities.PathCombine(GetPathFromNodeForDisplay(_selectedNode), FolderAndFileListView.SelectedItems[0].Text));
             }
         }
 
@@ -938,5 +943,22 @@ namespace iDeviceBrowser
             PreviewSplitContainer.Panel2Collapsed = !ViewToolStripMenuItem_PreviewToolStripMenuItem.Checked;
         }
         #endregion Events
+
+        private void PathTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter || e.KeyCode == Keys.Return)
+            {
+                e.Handled = true;
+                SelectNodeAsync(PathTextBox.Text);
+            }
+        }
+
+        private void PathTextBox_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar == (char)Keys.Enter || e.KeyChar == (char)Keys.Return)
+            {
+                e.Handled = true;
+            }
+        }
     }
 }

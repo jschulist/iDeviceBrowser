@@ -60,6 +60,8 @@
             this.ViewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ViewToolStripMenuItem_PreviewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.FavoritesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.FavoritesToolStripMenuItem_EditToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.MainPanel = new System.Windows.Forms.Panel();
             this.FolderContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.FolderContextMenu_RefreshToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -70,8 +72,7 @@
             this.toolStripSeparator9 = new System.Windows.Forms.ToolStripSeparator();
             this.FolderContextMenu_RenameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.FolderContextMenu_DeleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.FavoritesToolStripMenuItem_EditToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.PathTextBox = new System.Windows.Forms.TextBox();
             this.MainSplitContainer.Panel1.SuspendLayout();
             this.MainSplitContainer.Panel2.SuspendLayout();
             this.MainSplitContainer.SuspendLayout();
@@ -87,8 +88,10 @@
             // 
             // MainSplitContainer
             // 
-            this.MainSplitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.MainSplitContainer.Location = new System.Drawing.Point(0, 0);
+            this.MainSplitContainer.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.MainSplitContainer.Location = new System.Drawing.Point(0, 21);
             this.MainSplitContainer.Name = "MainSplitContainer";
             // 
             // MainSplitContainer.Panel1
@@ -100,8 +103,8 @@
             // 
             this.MainSplitContainer.Panel2.Controls.Add(this.PreviewSplitContainer);
             this.MainSplitContainer.Panel2.Padding = new System.Windows.Forms.Padding(0, 0, 3, 0);
-            this.MainSplitContainer.Size = new System.Drawing.Size(701, 412);
-            this.MainSplitContainer.SplitterDistance = 232;
+            this.MainSplitContainer.Size = new System.Drawing.Size(701, 390);
+            this.MainSplitContainer.SplitterDistance = 231;
             this.MainSplitContainer.SplitterWidth = 6;
             this.MainSplitContainer.TabIndex = 0;
             // 
@@ -115,7 +118,7 @@
             this.FolderTreeView.PathSeparator = "/";
             this.FolderTreeView.SelectedImageIndex = 0;
             this.FolderTreeView.ShowRootLines = false;
-            this.FolderTreeView.Size = new System.Drawing.Size(229, 412);
+            this.FolderTreeView.Size = new System.Drawing.Size(228, 390);
             this.FolderTreeView.TabIndex = 0;
             this.FolderTreeView.AfterExpand += new System.Windows.Forms.TreeViewEventHandler(this.FolderTreeView_AfterExpand);
             this.FolderTreeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.FolderTreeView_AfterSelect);
@@ -141,8 +144,8 @@
             // PreviewSplitContainer.Panel2
             // 
             this.PreviewSplitContainer.Panel2.Controls.Add(this.PreviewGroupBox);
-            this.PreviewSplitContainer.Size = new System.Drawing.Size(460, 412);
-            this.PreviewSplitContainer.SplitterDistance = 206;
+            this.PreviewSplitContainer.Size = new System.Drawing.Size(461, 390);
+            this.PreviewSplitContainer.SplitterDistance = 189;
             this.PreviewSplitContainer.TabIndex = 2;
             // 
             // FolderAndFileListView
@@ -157,7 +160,7 @@
             this.FolderAndFileListView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.FolderAndFileListView.Location = new System.Drawing.Point(0, 0);
             this.FolderAndFileListView.Name = "FolderAndFileListView";
-            this.FolderAndFileListView.Size = new System.Drawing.Size(460, 206);
+            this.FolderAndFileListView.Size = new System.Drawing.Size(461, 189);
             this.FolderAndFileListView.SmallImageList = this.FolderAndFileImageList;
             this.FolderAndFileListView.TabIndex = 0;
             this.FolderAndFileListView.UseCompatibleStateImageBehavior = false;
@@ -177,10 +180,12 @@
             // 
             this.SizeColumnHeader.Text = "Size";
             this.SizeColumnHeader.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.SizeColumnHeader.Width = 80;
             // 
             // TypeColumnHeader
             // 
             this.TypeColumnHeader.Text = "Type";
+            this.TypeColumnHeader.Width = 80;
             // 
             // FolderAndFileContextMenu
             // 
@@ -262,7 +267,7 @@
             this.PreviewGroupBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.PreviewGroupBox.Location = new System.Drawing.Point(0, 0);
             this.PreviewGroupBox.Name = "PreviewGroupBox";
-            this.PreviewGroupBox.Size = new System.Drawing.Size(460, 202);
+            this.PreviewGroupBox.Size = new System.Drawing.Size(461, 197);
             this.PreviewGroupBox.TabIndex = 2;
             this.PreviewGroupBox.TabStop = false;
             this.PreviewGroupBox.Text = "Preview";
@@ -316,7 +321,7 @@
             // FileToolStripMenuItem_ExitExitToolStripMenuItem
             // 
             this.FileToolStripMenuItem_ExitExitToolStripMenuItem.Name = "FileToolStripMenuItem_ExitExitToolStripMenuItem";
-            this.FileToolStripMenuItem_ExitExitToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.FileToolStripMenuItem_ExitExitToolStripMenuItem.Size = new System.Drawing.Size(92, 22);
             this.FileToolStripMenuItem_ExitExitToolStripMenuItem.Text = "Exit";
             this.FileToolStripMenuItem_ExitExitToolStripMenuItem.Click += new System.EventHandler(this.FileToolStripMenuItem_ExitExitToolStripMenuItem_Click);
             // 
@@ -339,7 +344,7 @@
             this.ViewToolStripMenuItem_PreviewToolStripMenuItem.Checked = true;
             this.ViewToolStripMenuItem_PreviewToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.ViewToolStripMenuItem_PreviewToolStripMenuItem.Name = "ViewToolStripMenuItem_PreviewToolStripMenuItem";
-            this.ViewToolStripMenuItem_PreviewToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.ViewToolStripMenuItem_PreviewToolStripMenuItem.Size = new System.Drawing.Size(115, 22);
             this.ViewToolStripMenuItem_PreviewToolStripMenuItem.Text = "Preview";
             this.ViewToolStripMenuItem_PreviewToolStripMenuItem.Click += new System.EventHandler(this.MainMenuStrip_ViewToolStripMenuItem_PreviewToolStripMenuItem_Click);
             // 
@@ -352,8 +357,21 @@
             this.FavoritesToolStripMenuItem.Size = new System.Drawing.Size(66, 20);
             this.FavoritesToolStripMenuItem.Text = "&Favorites";
             // 
+            // FavoritesToolStripMenuItem_EditToolStripMenuItem
+            // 
+            this.FavoritesToolStripMenuItem_EditToolStripMenuItem.Name = "FavoritesToolStripMenuItem_EditToolStripMenuItem";
+            this.FavoritesToolStripMenuItem_EditToolStripMenuItem.Size = new System.Drawing.Size(94, 22);
+            this.FavoritesToolStripMenuItem_EditToolStripMenuItem.Text = "Edit";
+            this.FavoritesToolStripMenuItem_EditToolStripMenuItem.Click += new System.EventHandler(this.FavoritesToolStripMenuItem_EditToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator2
+            // 
+            this.toolStripSeparator2.Name = "toolStripSeparator2";
+            this.toolStripSeparator2.Size = new System.Drawing.Size(91, 6);
+            // 
             // MainPanel
             // 
+            this.MainPanel.Controls.Add(this.PathTextBox);
             this.MainPanel.Controls.Add(this.MainSplitContainer);
             this.MainPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.MainPanel.Location = new System.Drawing.Point(0, 24);
@@ -422,17 +440,16 @@
             this.FolderContextMenu_DeleteToolStripMenuItem.Size = new System.Drawing.Size(134, 22);
             this.FolderContextMenu_DeleteToolStripMenuItem.Text = "Delete";
             // 
-            // FavoritesToolStripMenuItem_EditToolStripMenuItem
+            // PathTextBox
             // 
-            this.FavoritesToolStripMenuItem_EditToolStripMenuItem.Name = "FavoritesToolStripMenuItem_EditToolStripMenuItem";
-            this.FavoritesToolStripMenuItem_EditToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.FavoritesToolStripMenuItem_EditToolStripMenuItem.Text = "Edit";
-            this.FavoritesToolStripMenuItem_EditToolStripMenuItem.Click += new System.EventHandler(this.FavoritesToolStripMenuItem_EditToolStripMenuItem_Click);
-            // 
-            // toolStripSeparator2
-            // 
-            this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(149, 6);
+            this.PathTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.PathTextBox.Location = new System.Drawing.Point(3, 0);
+            this.PathTextBox.Name = "PathTextBox";
+            this.PathTextBox.Size = new System.Drawing.Size(695, 20);
+            this.PathTextBox.TabIndex = 1;
+            this.PathTextBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.PathTextBox_KeyDown);
+            this.PathTextBox.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.PathTextBox_KeyPress);
             // 
             // Main
             // 
@@ -457,6 +474,7 @@
             this.MainMenuStrip.ResumeLayout(false);
             this.MainMenuStrip.PerformLayout();
             this.MainPanel.ResumeLayout(false);
+            this.MainPanel.PerformLayout();
             this.FolderContextMenu.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -507,6 +525,7 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripMenuItem FavoritesToolStripMenuItem_EditToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
+        private System.Windows.Forms.TextBox PathTextBox;
     }
 }
 

@@ -11,8 +11,6 @@ namespace iDeviceBrowser
     {
         public delegate void Callback();
 
-        private static readonly string[] _sizes = { "B", "KB", "MB", "GB", "PB" };
-
         public static void Copy(Stream from, Stream to)
         {
             Copy(from, to, null, () => false);
@@ -99,15 +97,14 @@ namespace iDeviceBrowser
 
         public static string GetFileSize(ulong size)
         {
-            int place = 0;
-            double num = 0;
-            if (size > 0)
+            double num = Math.Round(size / 1024.0, 0);
+
+            if (size != 0 && num == 0.0)
             {
-                place = Convert.ToInt32(Math.Floor(Math.Log(size, 1024)));
-                num = Math.Round(size / Math.Pow(1024, place), 1);
+                num = 1.0;
             }
 
-            string result = String.Format("{0:0.##} {1}", num, _sizes[place]);
+            string result = String.Format("{0:#,0.##} {1}", num, "KB");
 
             return result;
         }

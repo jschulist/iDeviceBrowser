@@ -31,6 +31,8 @@ obj/
 [Rr]elease*/
 Ankh.NoLoad
 *.Publish.xml
+*.testsettings
+*.vsmdi
 
 #Tooling
 _ReSharper*/
