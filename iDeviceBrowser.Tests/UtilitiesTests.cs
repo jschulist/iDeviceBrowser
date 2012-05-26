@@ -38,5 +38,63 @@ namespace iDeviceBrowser.Tests
         {
             Assert.AreEqual("1,000 KB", Utilities.GetFileSize(1024000));
         }
+
+        // TODO: THIS SHOULD LIKELY RETURN EMPTY.STRING TO MATCH PATH.COMBINE OF SYSTEM.IO
+        [TestMethod]
+        public void PathCombine_Empty_Empty_ReturnsSlash()
+        {
+            Assert.AreEqual("/", Utilities.PathCombine(string.Empty, string.Empty));
+        }
+
+        // TODO: THIS SHOULD LIKELY RETURN bin TO MATCH PATH.COMBINE OF SYSTEM.IO
+        [TestMethod]
+        public void PathCombine_Empty_bin_ReturnsSlash()
+        {
+            Assert.AreEqual("/bin", Utilities.PathCombine(string.Empty, "bin"));
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void PathCombine_Empty_Slashbin_ReturnsSlash()
+        {
+            Assert.AreEqual("/bin", Utilities.PathCombine(string.Empty, "/bin"));
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void PathCombine_Empty_SlashbinSlash_ReturnsSlash()
+        {
+            Assert.AreEqual("/bin/", Utilities.PathCombine(string.Empty, "/bin/"));
+        }
+
+        [TestMethod]
+        public void PathCombine_Slash_Empty_ReturnsSlash()
+        {
+            Assert.AreEqual("/", Utilities.PathCombine("/", string.Empty));
+        }
+
+        [TestMethod]
+        public void PathCombine_Slash_bin_ReturnsSlash()
+        {
+            Assert.AreEqual("/bin", Utilities.PathCombine("/", "bin"));
+        }
+
+        [TestMethod]
+        public void PathCombine_Slashbin_apt_ReturnsSlash()
+        {
+            Assert.AreEqual("/bin/apt", Utilities.PathCombine("/bin", "apt"));
+        }
+
+        [TestMethod]
+        public void PathCombine_SlashbinSlash_apt_ReturnsSlash()
+        {
+            Assert.AreEqual("/bin/apt", Utilities.PathCombine("/bin/", "apt"));
+        }
+
+        [TestMethod]
+        public void PathCombine_bin_apt_ReturnsSlash()
+        {
+            Assert.AreEqual("bin/apt", Utilities.PathCombine("bin", "apt"));
+        }
     }
 }

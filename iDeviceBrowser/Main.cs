@@ -853,9 +853,18 @@ namespace iDeviceBrowser
                 string path = GetPathFromNodeForDisplay(_selectedNode);
                 DeleteFiles(path, FolderAndFileListView.SelectedItems);
             }
+            else if (e.KeyCode == Keys.Enter || e.KeyCode == Keys.Return)
+            {
+                SelectNodeFromFolderAndFileListView();
+            }
         }
 
         private void FolderAndFileListView_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            SelectNodeFromFolderAndFileListView();
+        }
+
+        private void SelectNodeFromFolderAndFileListView()
         {
             if (FolderAndFileListView.SelectedItems.Count == 1 && _iDeviceInterface.IsDirectory(Utilities.PathCombine(GetPathFromNodeForDisplay(_selectedNode), FolderAndFileListView.SelectedItems[0].Text)))
             {
@@ -942,13 +951,11 @@ namespace iDeviceBrowser
             ViewToolStripMenuItem_PreviewToolStripMenuItem.Checked = !ViewToolStripMenuItem_PreviewToolStripMenuItem.Checked;
             PreviewSplitContainer.Panel2Collapsed = !ViewToolStripMenuItem_PreviewToolStripMenuItem.Checked;
         }
-        #endregion Events
 
         private void PathTextBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter || e.KeyCode == Keys.Return)
             {
-                e.Handled = true;
                 SelectNodeAsync(PathTextBox.Text);
             }
         }
@@ -960,5 +967,6 @@ namespace iDeviceBrowser
                 e.Handled = true;
             }
         }
+        #endregion Events
     }
 }

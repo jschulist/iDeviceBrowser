@@ -106,7 +106,7 @@
             this.MainSplitContainer.Size = new System.Drawing.Size(701, 390);
             this.MainSplitContainer.SplitterDistance = 231;
             this.MainSplitContainer.SplitterWidth = 6;
-            this.MainSplitContainer.TabIndex = 0;
+            this.MainSplitContainer.TabIndex = 1;
             // 
             // FolderTreeView
             // 
@@ -146,7 +146,7 @@
             this.PreviewSplitContainer.Panel2.Controls.Add(this.PreviewGroupBox);
             this.PreviewSplitContainer.Size = new System.Drawing.Size(461, 390);
             this.PreviewSplitContainer.SplitterDistance = 189;
-            this.PreviewSplitContainer.TabIndex = 2;
+            this.PreviewSplitContainer.TabIndex = 0;
             // 
             // FolderAndFileListView
             // 
@@ -268,7 +268,7 @@
             this.PreviewGroupBox.Location = new System.Drawing.Point(0, 0);
             this.PreviewGroupBox.Name = "PreviewGroupBox";
             this.PreviewGroupBox.Size = new System.Drawing.Size(461, 197);
-            this.PreviewGroupBox.TabIndex = 2;
+            this.PreviewGroupBox.TabIndex = 0;
             this.PreviewGroupBox.TabStop = false;
             this.PreviewGroupBox.Text = "Preview";
             // 
@@ -280,7 +280,7 @@
             this.MainStatusStrip.Location = new System.Drawing.Point(0, 436);
             this.MainStatusStrip.Name = "MainStatusStrip";
             this.MainStatusStrip.Size = new System.Drawing.Size(701, 22);
-            this.MainStatusStrip.TabIndex = 1;
+            this.MainStatusStrip.TabIndex = 2;
             this.MainStatusStrip.Text = "statusStrip1";
             // 
             // MainStatusStrip_StatusToolStripStatusLabel
@@ -307,7 +307,7 @@
             this.MainMenuStrip.Location = new System.Drawing.Point(0, 0);
             this.MainMenuStrip.Name = "MainMenuStrip";
             this.MainMenuStrip.Size = new System.Drawing.Size(701, 24);
-            this.MainMenuStrip.TabIndex = 2;
+            this.MainMenuStrip.TabIndex = 0;
             this.MainMenuStrip.Text = "menuStrip1";
             // 
             // FileToolStripMenuItem
@@ -377,7 +377,7 @@
             this.MainPanel.Location = new System.Drawing.Point(0, 24);
             this.MainPanel.Name = "MainPanel";
             this.MainPanel.Size = new System.Drawing.Size(701, 412);
-            this.MainPanel.TabIndex = 3;
+            this.MainPanel.TabIndex = 1;
             // 
             // FolderContextMenu
             // 
@@ -447,7 +447,7 @@
             this.PathTextBox.Location = new System.Drawing.Point(3, 0);
             this.PathTextBox.Name = "PathTextBox";
             this.PathTextBox.Size = new System.Drawing.Size(695, 20);
-            this.PathTextBox.TabIndex = 1;
+            this.PathTextBox.TabIndex = 0;
             this.PathTextBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.PathTextBox_KeyDown);
             this.PathTextBox.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.PathTextBox_KeyPress);
             // 

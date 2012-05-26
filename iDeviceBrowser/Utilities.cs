@@ -77,13 +77,19 @@ namespace iDeviceBrowser
 
         public static string PathCombine(string left, string right)
         {
+            if (right.Length > 0 && right[0].Equals(Constants.PATH_SEPARATOR))
+            {
+                throw new ArgumentException("Cannot combine paths when right is a root path (ie: '/bin')");
+            }
+
             string result;
 
             if (left.Length == 0)
             {
-                result = Constants.PATH_SEPARATOR + right;
+                left += Constants.PATH_SEPARATOR;
             }
-            else if (left[left.Length - 1].Equals(Constants.PATH_SEPARATOR))
+            
+            if (left[left.Length - 1].Equals(Constants.PATH_SEPARATOR))
             {
                 result = left + right;
             }
