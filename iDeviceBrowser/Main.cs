@@ -18,8 +18,6 @@ namespace iDeviceBrowser
 
         // TODO: CONSIDER ADDING PREVIEW BACK IN, TEXT, IMAGE, PLISTS, ETC.
 
-        // TODO: ADD SUPPORT TO CONTEXT MENUS SO THAT ANY FOLDER CAN BE ADDED AS A FAVORITE
-
         // TODO: CONSIDER CHANING MANZANA GENERIC EXCEPTIONS TO TYPED EXCEPTIONS SO THEY CAN BE HANDLED GRACEFULLY
 
         // TODO: CONSIDER ADDING AUTOCOMPLETE TO THE PATH TEXTBOX
@@ -338,7 +336,7 @@ namespace iDeviceBrowser
 
         private string GetPathFromNode(TreeNode node)
         {
-            return node.FullPath.Replace("\\", "/").Replace(ROOT_NODE_NAME, "") + "/";
+            return node.FullPath.Replace("\\", Constants.PATH_SEPARATOR.ToString()).Replace(ROOT_NODE_NAME, "") + Constants.PATH_SEPARATOR;
         }
 
         private void RefreshChildFoldersAsync(TreeNode node, bool forceRefresh, Callback callback)
@@ -663,6 +661,19 @@ namespace iDeviceBrowser
             this.Close();
         }
 
+        private void AddFolderAsFavorite(string path)
+        {
+            string favoriteName = "New Favorite";
+            DialogResult dialogResult = InputBox.Show(string.Format("Add folder as favorite: {0}", path),
+                                                      "Enter the name of the new favorite:", ref favoriteName);
+            if (dialogResult == DialogResult.OK)
+            {
+                _userSettings.Favorites.Add(new Favorite(favoriteName, path));
+                _userSettings.Save();
+                PopulateFavoritesDropDown();
+            }
+        }
+
         #region Events
         private void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
         {
@@ -713,11 +724,15 @@ namespace iDeviceBrowser
             }
 
             TreeNode node = _selectedNode;
-            string path = GetPathFromNodeForDisplay(node);
+            string path = GetPathFromNode(node);
 
             if (e.ClickedItem == FolderAndFileContextMenu_RefreshToolStripMenuItem)
             {
                 RefreshListViewAsync(() => UpdateStatus("Refresh complete"));
+            }
+            else if (e.ClickedItem == FolderAndFileContextMenu_AddAsFavoriteToolStripMenuItem)
+            {
+                AddFolderAsFavorite(Path.Combine(path, FolderAndFileListView.SelectedItems[0].Text));
             }
             else if (e.ClickedItem == FolderAndFileContextMenu_NewFolderToolStripMenuItem)
             {
@@ -756,6 +771,7 @@ namespace iDeviceBrowser
         {
             int count = FolderAndFileListView.SelectedItems.Count;
 
+            FolderAndFileContextMenu_AddAsFavoriteToolStripMenuItem.Enabled = count == 1 && _iDeviceInterface.IsDirectory(Utilities.PathCombine(GetPathFromNodeForDisplay(_selectedNode), FolderAndFileListView.SelectedItems[0].Text));
             FolderAndFileContextMenu_SaveToolStripMenuItem.Enabled = count > 0;
             FolderAndFileContextMenu_SaveAsToolStripMenuItem.Enabled = count == 1 && _iDeviceInterface.IsFile(Utilities.PathCombine(GetPathFromNodeForDisplay(_selectedNode), FolderAndFileListView.SelectedItems[0].Text));
             FolderAndFileContextMenu_RenameToolStripMenuItem.Enabled = count == 1;
@@ -885,6 +901,11 @@ namespace iDeviceBrowser
             if (e.ClickedItem == FolderContextMenu_RefreshToolStripMenuItem)
             {
                 RefreshChildFoldersAsync(node, true);
+            }
+            else if (e.ClickedItem == FolderContextMenu_AddAsFavoriteToolStripMenuItem)
+            {
+                string selectedPath = GetPathFromNode(node);
+                AddFolderAsFavorite(selectedPath);
             }
             else if (e.ClickedItem == FolderContextMenu_NewFolderToolStripMenuItem)
             {
