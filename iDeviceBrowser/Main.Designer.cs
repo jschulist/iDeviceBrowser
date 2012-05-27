@@ -75,6 +75,7 @@
             this.FolderContextMenu_DeleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.FolderContextMenu_AddAsFavoriteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.FolderAndFileContextMenu_AddAsFavoriteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.DateModifiedHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.MainSplitContainer.Panel1.SuspendLayout();
             this.MainSplitContainer.Panel2.SuspendLayout();
             this.MainSplitContainer.SuspendLayout();
@@ -156,8 +157,9 @@
             this.FolderAndFileListView.AllowDrop = true;
             this.FolderAndFileListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.NameColumnHeader,
-            this.SizeColumnHeader,
-            this.TypeColumnHeader});
+            this.DateModifiedHeader,
+            this.TypeColumnHeader,
+            this.SizeColumnHeader});
             this.FolderAndFileListView.ContextMenuStrip = this.FolderAndFileContextMenu;
             this.FolderAndFileListView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.FolderAndFileListView.Location = new System.Drawing.Point(0, 0);
@@ -176,7 +178,7 @@
             // NameColumnHeader
             // 
             this.NameColumnHeader.Text = "Name";
-            this.NameColumnHeader.Width = 250;
+            this.NameColumnHeader.Width = 180;
             // 
             // SizeColumnHeader
             // 
@@ -204,7 +206,7 @@
             this.FolderAndFileContextMenu_ReplaceToolStripMenuItem,
             this.FolderAndFileContextMenu_DeleteToolStripMenuItem});
             this.FolderAndFileContextMenu.Name = "fileContextMenu";
-            this.FolderAndFileContextMenu.Size = new System.Drawing.Size(156, 220);
+            this.FolderAndFileContextMenu.Size = new System.Drawing.Size(156, 198);
             this.FolderAndFileContextMenu.Opening += new System.ComponentModel.CancelEventHandler(this.FolderAndFileContextMenu_Opening);
             this.FolderAndFileContextMenu.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.FolderAndFileContextMenu_ItemClicked);
             // 
@@ -467,6 +469,11 @@
             this.FolderAndFileContextMenu_AddAsFavoriteToolStripMenuItem.Size = new System.Drawing.Size(155, 22);
             this.FolderAndFileContextMenu_AddAsFavoriteToolStripMenuItem.Text = "Add as Favorite";
             // 
+            // DateModifiedHeader
+            // 
+            this.DateModifiedHeader.Text = "Date modified";
+            this.DateModifiedHeader.Width = 110;
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -544,6 +551,7 @@
         private System.Windows.Forms.TextBox PathTextBox;
         private System.Windows.Forms.ToolStripMenuItem FolderContextMenu_AddAsFavoriteToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem FolderAndFileContextMenu_AddAsFavoriteToolStripMenuItem;
+        private System.Windows.Forms.ColumnHeader DateModifiedHeader;
     }
 }
 

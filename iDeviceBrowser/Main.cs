@@ -298,9 +298,14 @@ namespace iDeviceBrowser
                             ListViewItem listViewItemTemp = new ListViewItem(file);
                             listViewItemTemp.ImageIndex = 1;
 
-                            UInt64 fileSize = _iDeviceInterface.FileSize(filePath);
-                            listViewItemTemp.SubItems.Add(Utilities.GetFileSize(fileSize));
-                            //listViewItemTemp.SubItems.Add(GetFileType(lstTemp.ImageIndex));
+                            Dictionary<string, string> fileInfo = _iDeviceInterface.GetFileInfo(filePath);
+
+                            DateTime fileModifiedDate = GetModifiedDate(fileInfo);
+
+                            // date modified, type, size
+                            listViewItemTemp.SubItems.Add(fileModifiedDate.ToShortDateString() + " " + fileModifiedDate.ToShortTimeString());
+                            listViewItemTemp.SubItems.Add("");
+                            listViewItemTemp.SubItems.Add(Utilities.GetFileSize(fileInfo.ContainsKey("st_size") ? ulong.Parse(fileInfo["st_size"]) : 0));
 
                             FolderAndFileListView.Items.Add(listViewItemTemp);
                         }
@@ -310,10 +315,23 @@ namespace iDeviceBrowser
                 });
         }
 
+        private DateTime GetModifiedDate(Dictionary<string, string> fileInfo)
+        {
+            ulong num = fileInfo.ContainsKey("st_mtime") ? ulong.Parse(fileInfo["st_mtime"]) : 0;
+            DateTime dateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0);
+
+            return dateTime.AddSeconds(num / 1000000000.0);
+        }
+
         private void AddFolderToListView(string folder)
         {
             ListViewItem listViewItemTemp = new ListViewItem(folder);
             listViewItemTemp.ImageIndex = 0;
+
+            // date modified, type, size
+            listViewItemTemp.SubItems.Add("");
+            listViewItemTemp.SubItems.Add("File folder");
+            listViewItemTemp.SubItems.Add("");
 
             FolderAndFileListView.Items.Add(listViewItemTemp);
         }
