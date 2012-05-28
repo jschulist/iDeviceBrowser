@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Windows.Forms;
@@ -76,7 +77,7 @@ namespace iDeviceBrowser
         private void ResetUserInterface()
         {
             ShiftToUiThread(
-                delegate
+                () =>
                 {
                     FolderTreeView.Nodes.Clear();
                     FolderAndFileListView.Items.Clear();
@@ -102,7 +103,8 @@ namespace iDeviceBrowser
         private void PopulateInitialFolders()
         {
             TreeNode rootNode = new TreeNode(ROOT_NODE_NAME);
-            rootNode.Name = ROOT_PATH;
+            rootNode.Name = ROOT_NODE_NAME;
+            rootNode.Tag = new NodeInfo(ROOT_NODE_NAME, ROOT_PATH, true);
 
             ShiftToUiThread(
                 () =>
@@ -113,7 +115,7 @@ namespace iDeviceBrowser
                     FolderTreeView.ContextMenuStrip = FolderContextMenu;
 
                     rootNode.Expand();
-                    rootNode.Tag = true;
+
                     FolderTreeView.SelectedNode = rootNode;
 
                     FolderTreeView.EndUpdate();
@@ -123,23 +125,74 @@ namespace iDeviceBrowser
             RefreshChildFoldersAsync(rootNode, true, rootNode.Expand);
         }
 
-        // TODO: CONSIDER DEFERING EAGER FOLDER FETCHING, OR PERFORM IT IN THE BACKGROUND, WHICH WOULD PREVENT US FROM NEEDING TO DISABLE THE CONTROLS WHILE THIS IS TAKING PLACE
+        private bool IsNodeRefreshed(TreeNode node)
+        {
+            NodeInfo nodeInfo = node.Tag as NodeInfo;
+
+            if (nodeInfo == null)
+            {
+                return false;
+            }
+
+            return nodeInfo.IsRefreshed;
+        }
+
+        private void SetNodeRefreshed(TreeNode node, bool isRefreshed)
+        {
+            NodeInfo nodeInfo = node.Tag as NodeInfo;
+
+            if (nodeInfo != null)
+            {
+                nodeInfo.IsRefreshed = isRefreshed;
+                ShiftToUiThread(
+                    () =>
+                    {
+                        node.Text = nodeInfo.Name;
+                    }
+                );
+            }
+        }
+
+        private string GetNodeName(TreeNode node)
+        {
+            NodeInfo nodeInfo = node.Tag as NodeInfo;
+
+            if (nodeInfo != null)
+            {
+                return nodeInfo.Name;
+            }
+
+            return string.Empty;
+        }
+
+        private string GetNodePath(TreeNode node)
+        {
+            NodeInfo nodeInfo = node.Tag as NodeInfo;
+
+            if (nodeInfo != null)
+            {
+                return nodeInfo.Path;
+            }
+
+            return string.Empty;
+        }
+
         private void RefreshChildFolders(TreeNode node, bool forceRefresh)
         {
             List<NodeAndFolders> nodeAndFolders = new List<NodeAndFolders>();
 
-            if (node.Tag == null || forceRefresh)
+            if (!IsNodeRefreshed(node) || forceRefresh)
             {
                 string path = GetPathFromNode(node);
 
-                List<Folder> folders = GetFolders(path, 0);
+                List<Folder> folders = GetFolders(path, 1);
 
                 nodeAndFolders.Add(new NodeAndFolders(node, folders));
             }
 
             UpdateChildFolders(nodeAndFolders);
 
-            node.Tag = true;
+            SetNodeRefreshed(node, true);
 
             UpdateStatus("Refresh complete");
         }
@@ -147,17 +200,14 @@ namespace iDeviceBrowser
         private void UpdateStatus(string message)
         {
             ShiftToUiThread(
-                delegate
-                {
-                    MainStatusStrip_StatusToolStripStatusLabel.Text = message;
-                }
+                () => MainStatusStrip_StatusToolStripStatusLabel.Text = message
             );
         }
 
         private void RemoveNodeFromNode(TreeNode parent, TreeNode child)
         {
             ShiftToUiThread(
-                delegate
+                () =>
                 {
                     if (parent != null)
                     {
@@ -169,45 +219,54 @@ namespace iDeviceBrowser
             );
         }
 
-        private void UpdateChildFolders(IEnumerable<NodeAndFolders> nodeAndFolders)
+        private List<TreeNode> UpdateChildFolders(IEnumerable<NodeAndFolders> nodeAndFolders)
         {
+            List<TreeNode> nodes = new List<TreeNode>();
+
             if (Enumerable.Count(nodeAndFolders) > 0)
             {
                 ShiftToUiThread(
-                    delegate
+                    () =>
                     {
                         FolderTreeView.BeginUpdate();
 
                         foreach (NodeAndFolders naf in nodeAndFolders)
                         {
                             naf.Node.Nodes.Clear();
-                            AddFoldersToNode(naf.Node, naf.Folders);
+
+                            List<TreeNode> newNodes = AddFoldersToNode(naf.Node, naf.Folders);
+
+                            nodes.AddRange(newNodes);
                         }
 
                         FolderTreeView.EndUpdate();
                     }
                 );
             }
+
+            return nodes;
         }
 
-        private void AddFoldersToNode(TreeNode node, List<Folder> folders)
+        private List<TreeNode> AddFoldersToNode(TreeNode node, List<Folder> folders)
         {
-            ShiftToUiThread(
-               delegate
-               {
-                   foreach (Folder folder in folders)
-                   {
-                       TreeNode newNode = new TreeNode(folder.Name);
-                       newNode.Name = folder.Name;
-                       node.Nodes.Add(newNode);
+            List<TreeNode> nodes = new List<TreeNode>();
 
-                       if (folder.SubFolders != null && folder.SubFolders.Count > 0)
-                       {
-                           AddFoldersToNode(newNode, folder.SubFolders);
-                       }
-                   }
-               }
-           );
+            ShiftToUiThread(
+                () =>
+                {
+                    foreach (Folder folder in folders)
+                    {
+                        TreeNode newNode = new TreeNode(folder.Name /* + " [refreshing]"*/);
+                        newNode.Name = folder.Name;
+                        newNode.Tag = new NodeInfo(folder.Name, GetNodePath(node) + folder.Name + "/");
+                        node.Nodes.Add(newNode);
+
+                        nodes.Add(newNode);
+                    }
+                }
+            );
+
+            return nodes;
         }
 
         private List<Folder> GetFolders(string path, int depth)
@@ -237,11 +296,10 @@ namespace iDeviceBrowser
         private void RefreshListViewAsync(Callback callback)
         {
             Async(
-                DisableInterface,
+                null,
                 RefreshListView,
                 () =>
                 {
-                    EnableInterface();
                     if (callback != null)
                     {
                         callback();
@@ -354,17 +412,16 @@ namespace iDeviceBrowser
 
         private string GetPathFromNode(TreeNode node)
         {
-            return node.FullPath.Replace("\\", Constants.PATH_SEPARATOR.ToString()).Replace(ROOT_NODE_NAME, "") + Constants.PATH_SEPARATOR;
+            return GetNodePath(node);
         }
 
         private void RefreshChildFoldersAsync(TreeNode node, bool forceRefresh, Callback callback)
         {
             Async(
-                DisableInterface,
+                null,
                 () => RefreshChildFolders(node, forceRefresh),
                 () =>
                 {
-                    EnableInterface();
                     if (callback != null)
                     {
                         callback();
@@ -384,7 +441,7 @@ namespace iDeviceBrowser
                 before();
             }
             ThreadPool.QueueUserWorkItem(
-                delegate(object o)
+                _ =>
                 {
                     async();
 
@@ -405,28 +462,6 @@ namespace iDeviceBrowser
             }
 
             callback();
-        }
-
-        private void DisableInterface()
-        {
-            ShiftToUiThread(
-                delegate
-                {
-                    FolderTreeView.Enabled = false;
-                    FolderAndFileListView.Enabled = false;
-                }
-            );
-        }
-
-        private void EnableInterface()
-        {
-            ShiftToUiThread(
-                delegate
-                {
-                    FolderTreeView.Enabled = true;
-                    FolderAndFileListView.Enabled = true;
-                }
-            );
         }
 
         // TODO: IS THERE ANY REASON TO CONTINUE DOING THIS?  WHY NOT JUST REMOVE THE INVALID CHARACTERS?
@@ -630,7 +665,7 @@ namespace iDeviceBrowser
 
         private void SelectNode(string path)
         {
-            TreeNode[] nodes = FolderTreeView.Nodes.Find(ROOT_PATH, false);
+            TreeNode[] nodes = FolderTreeView.Nodes.Find(ROOT_NODE_NAME, false);
 
             string[] pieces = path.Split(new char[] { Constants.PATH_SEPARATOR }, StringSplitOptions.RemoveEmptyEntries);
 
@@ -648,7 +683,7 @@ namespace iDeviceBrowser
             }
 
             ShiftToUiThread(
-                delegate
+                () =>
                 {
                     if (nodes.Length > 0)
                     {
@@ -662,7 +697,7 @@ namespace iDeviceBrowser
 
         private void SelectNodeAsync(string path)
         {
-            Async(DisableInterface, delegate { SelectNode(path); }, EnableInterface);
+            Async(null, () => SelectNode(path), null);
         }
 
         private void UpdateSelectedPath()
@@ -966,7 +1001,8 @@ namespace iDeviceBrowser
         private void FolderTreeView_AfterSelect(object sender, TreeViewEventArgs e)
         {
             _selectedNode = e.Node;
-            RefreshListViewAsync(delegate { FolderTreeView.SelectedNode = _selectedNode; FolderTreeView.Focus(); });
+            RefreshChildFoldersAsync(_selectedNode, false);
+            RefreshListViewAsync(() => FolderTreeView.Focus());
             UpdateSelectedPath();
         }
 

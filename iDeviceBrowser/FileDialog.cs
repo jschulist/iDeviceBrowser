@@ -244,16 +244,16 @@ namespace iDeviceBrowser
                 before();
             }
             ThreadPool.QueueUserWorkItem(
-                delegate(object o)
-                {
-                    async();
-
-                    if (after != null)
+                _ =>
                     {
-                        ShiftToUiThread(after);
+                        async();
+
+                        if (after != null)
+                        {
+                            ShiftToUiThread(after);
+                        }
                     }
-                }
-            );
+                );
         }
 
         private void ShiftToUiThread(Callback callback)
