@@ -464,31 +464,6 @@ namespace iDeviceBrowser
             callback();
         }
 
-        // TODO: IS THERE ANY REASON TO CONTINUE DOING THIS?  WHY NOT JUST REMOVE THE INVALID CHARACTERS?
-        private string FixFilename(string filename)
-        {
-            string result = filename;
-            char[] chars = Path.GetInvalidFileNameChars();
-            for (int i = 0; i < chars.Length; i++)
-            {
-                result = result.Replace(chars[i].ToString(), "%" + ((int)chars[i]).ToString("X"));
-            }
-
-            return result;
-        }
-
-        private string UnfixFilename(string filename)
-        {
-            string result = filename;
-            char[] chars = Path.GetInvalidFileNameChars();
-            for (int i = 0; i < chars.Length; i++)
-            {
-                result = result.Replace("%" + ((int)chars[i]).ToString("X"), chars[i].ToString());
-            }
-
-            return result;
-        }
-
         private void SaveDirectory(TreeNode node)
         {
             FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog();

@@ -18,6 +18,11 @@ namespace iDeviceBrowser
         {
             InitializeComponent();
 
+            _fixChars = Path.GetInvalidFileNameChars();
+            _unfixChars = Path.GetInvalidFileNameChars();
+            Array.Sort(_unfixChars);
+            Array.Reverse(_unfixChars);
+
             _iDeviceInterface = iDeviceInterface;
             _timer = new System.Timers.Timer();
             _timer.Interval = 1000;
@@ -34,6 +39,8 @@ namespace iDeviceBrowser
         private ulong _lastBytesValue = 0;
         private System.Timers.Timer _timer;
         private bool _isCancelled = false;
+        private char[] _fixChars;
+        private char[] _unfixChars;
 
         #region REMOVE THIS IF WE DON'T END UP USING IT
         public SynchronizationContext SyncContext { get; set; }
@@ -162,7 +169,7 @@ namespace iDeviceBrowser
                 {
                     string filename = Path.GetFileName(source);
                     FileInfo fi = new FileInfo(source);
-                    SourceAndDestination lar = new SourceAndDestination(source, destination, filename, (ulong)fi.Length);
+                    SourceAndDestination lar = new SourceAndDestination(source, destination, UnfixFilename(filename), (ulong)fi.Length);
 
                     yield return lar;
                 }
@@ -171,18 +178,15 @@ namespace iDeviceBrowser
                     DirectoryInfo directoryInfo = new DirectoryInfo(source);
                     string directoryName = directoryInfo.Name;
 
-                    foreach (string file in Directory.GetFiles(source))
+                    IEnumerable<SourceAndDestination> files = GetLocalFiles(Directory.GetFiles(source), Path.Combine(destination, directoryName));
+                    foreach (SourceAndDestination f in files)
                     {
-                        string filename = Path.GetFileName(file);
-                        FileInfo fi = new FileInfo(file);
-                        SourceAndDestination lar = new SourceAndDestination(file, Utilities.PathCombine(destination, directoryName), filename, (ulong)fi.Length);
-
-                        yield return lar;
+                        yield return f;
                     }
 
                     // copy all directories over recursively
-                    IEnumerable<SourceAndDestination> files = GetLocalFiles(Directory.GetDirectories(source), Utilities.PathCombine(destination, directoryName));
-                    foreach (SourceAndDestination file in files)
+                    IEnumerable<SourceAndDestination> filesFromDirectories = GetLocalFiles(Directory.GetDirectories(source), Utilities.PathCombine(destination, directoryName));
+                    foreach (SourceAndDestination file in filesFromDirectories)
                     {
                         yield return file;
                     }
@@ -208,7 +212,7 @@ namespace iDeviceBrowser
                         filename = Path.GetFileName(destination);
                     }
 
-                    SourceAndDestination lar = new SourceAndDestination(source, newDestination, filename, _iDeviceInterface.FileSize(source));
+                    SourceAndDestination lar = new SourceAndDestination(source, newDestination, FixFilename(filename), _iDeviceInterface.FileSize(source));
 
                     yield return lar;
                 }
@@ -279,6 +283,31 @@ namespace iDeviceBrowser
             _isCancelled = true;
             _timer.Stop();
             Hide();
+        }
+
+        // TODO: IS THERE ANY REASON TO CONTINUE DOING THIS?  WHY NOT JUST REMOVE THE INVALID CHARACTERS?
+        private string FixFilename(string filename)
+        {
+            string result = filename;
+
+            for (int i = 0; i < _fixChars.Length; i++)
+            {
+                result = result.Replace(_fixChars[i].ToString(), "%" + ((int)_fixChars[i]).ToString("X"));
+            }
+
+            return result;
+        }
+
+        private string UnfixFilename(string filename)
+        {
+            string result = filename;
+
+            for (int i = 0; i < _unfixChars.Length; i++)
+            {
+                result = result.Replace("%" + ((int)_unfixChars[i]).ToString("X"), _unfixChars[i].ToString());
+            }
+
+            return result;
         }
 
         #region Events

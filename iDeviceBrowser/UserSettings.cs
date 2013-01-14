@@ -47,7 +47,8 @@ namespace iDeviceBrowser
                     new Favorite("SummerBoard Themes", "/var/mobile/Library/Summerboard/Themes"),
                     new Favorite("Camera Roll", "/var/mobile/Media/DCIM"),
                     new Favorite("Fonts", "/System/Library/Fonts"),
-                    new Favorite("Installous Downloads", "/private/var/mobile/Documents/Installous/Downloads")
+                    new Favorite("Installous Downloads", "/private/var/mobile/Documents/Installous/Downloads"),
+                    new Favorite("vShare Downloads", "/private/var/mobile/Applications/AA682A04-BEFB-401E-8D22-8D5DAC82A5E2/Documents")
                 };
                 this.IsNotFirstLoad = true;
                 this.Save();
